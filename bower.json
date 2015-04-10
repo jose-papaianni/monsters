@@ -1,0 +1,24 @@
+{
+  "name": "games initiative",
+  "version": "0.0.0",
+  "authors": [
+    "Jose Papaianni <jose.papaianni@fdvsolutions.com>"
+  ],
+  "main": "index.html",
+  "moduleType": [
+    "globals"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "gsap": "~1.16.1",
+    "jquery": "~2.1.3",
+    "phaser": "~2.3.0"
+  }
+}
