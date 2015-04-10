@@ -14,8 +14,31 @@ function preload() {
 var map;
 var layer;
 
+var path = [
+    {x:0,y:0},
+    {x:1,y:0},
+    {x:2,y:0},
+    {x:3,y:0},
+    {x:4,y:0},
+    {x:4,y:1},
+    {x:4,y:2},
+    {x:3,y:2},
+    {x:3,y:1},
+    {x:2,y:1},
+    {x:2,y:2},
+    {x:2,y:3},
+    {x:3,y:3},
+    {x:3,y:4},
+    {x:4,y:4},
+    {x:4,y:5},
+    {x:3,y:5},
+    {x:2,y:5},
+    {x:1,y:5},
+    {x:0,y:5},
+];
+
 var level0Grid = [[1,1,1,1,1],
-				  [0,0,0,0,1],
+				  [0,0,1,1,1],
 				  [0,0,1,1,1],
 				  [0,0,1,0,0],
             	  [0,0,1,1,1],
@@ -42,52 +65,25 @@ function create() {
 	var counterA = 0;
 	var counterB = 0;
 	directionForward = true;
+    
+    currentStep = 0;
 
-setInterval( function () {	
-	
-			if (directionForward){
-				if (level0Grid[counterA][counterB+1] === 1 ){
-					counterB ++;
-					TweenMax.to(purpleCell, 0.25,{
-						x: purpleCell.x + 96,
-						ease: Back.easeInOut.config(1)
-					});
-				} else if (level0Grid[counterA+1][counterB] === 1){
-					if (level0Grid[counterA][counterB-1] === 1){
-						directionForward = false;
-					}
-					counterA++;
-					TweenMax.to(purpleCell, 0.25,{
-						y: purpleCell.y + 96,
-						ease: Back.easeInOut.config(1)
-					});
-				}
-				
-			} else {
-				if (level0Grid[counterA][counterB-1] === 1){
-					counterB --;
-					TweenMax.to(purpleCell, 0.25,{
-						x: purpleCell.x - 96,
-						ease: Back.easeInOut.config(1)
-					});
-				} else if (level0Grid[counterA+1][counterB] === 1){
-					if (level0Grid[counterA][counterB+1] === 1){
-						directionForward = true;
-					}
-					counterA++;
-					TweenMax.to(purpleCell, 0.25,{
-						y: purpleCell.y + 96,
-						ease: Back.easeInOut.config(1)
-					});
-				};
-			} 
-		console.log('direction: ', directionForward);
-		console.log('count: ', counterA, counterB);
-
-	
-	
-		}, 1500);
+    setInterval( function () {	
+        if (currentStep < path.length) {
+            var nextCell = getNextCell(path[currentStep],path[currentStep+1]);
+            TweenMax.to(purpleCell, 0.25,{
+                x: purpleCell.x + nextCell.offsetX,
+                y: purpleCell.y + nextCell.offsetY,
+                ease: Back.easeInOut.config(1)
+            });
+            currentStep++;
+        }
+    }, 1500);
 };
+
+function getNextCell(current,next){
+    return {offsetX: ((next.x-current.x)*96), offsetY: ((next.y-current.y)*96)}
+}
 
 function update() {	
 
