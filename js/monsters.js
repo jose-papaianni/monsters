@@ -7,12 +7,23 @@ var gameActors;
 function preload() {
 	
 	game.load.image("backgroundGlobal", "assets/back-pattern.jpg", 150, 150);
-    game.load.spritesheet("purpleCell", "assets/purplecell.png", 81, 82);
+    game.load.spritesheet("redCell", "assets/redcell.png", 110, 110 );
+    game.load.spritesheet("purpleCell", "assets/purplecell.png", 110, 110 );
+    game.load.spritesheet("blueCell", "assets/bluecell.png", 110, 110 );
+    game.load.spritesheet("yellowCell", "assets/yellowcell.png", 110, 110 );
 
 }
 
 var map;
 var layer;
+var cell;
+var cells;
+var cellTypes = [
+    'redCell',
+    'purpleCell',
+    'blueCell',
+    'yellowCell'
+];
 
 var path = [
     {x:0,y:0},
@@ -46,7 +57,8 @@ var level0Grid = [[1,1,1,1,1],
 				 ];
 
 function create() {
-	//background
+	
+    //Background
 	for (var i = 0; i < 6; i++){
 		xPos = i * 150;
 	backgroundGlobal = game.add.image(xPos, 0, 'backgroundGlobal');
@@ -54,36 +66,52 @@ function create() {
 				backgroundGlobal = game.add.image(xPos, j * 150, 'backgroundGlobal');
 		}
 	}	
-	
-	purpleCell = game.add.sprite(0,0, 'purpleCell');	
-	purpleCell.animations.add('reflex',[1,2,3,4,5,6,7,8,9,10,0], 60, false);
-	
-	setInterval(function(){
-			purpleCell.animations.play('reflex', 60, false);
-	},1000);
-	
-	var counterA = 0;
-	var counterB = 0;
-	directionForward = true;
-    
-    currentStep = 0;
+    cellGenerator();
+};
 
+function cellGenerator (    ){
+    cells = game.add.group();
+    var cellId = 0;
+    setInterval ( function () {
+        var randomizerCell = cellTypes[Math.floor((Math.random() * cellTypes.length))];
+        var cell = cells.create(40,40, randomizerCell);
+        cell.scale.set(0.5);
+        cell.name = 'cellId-' + cellId.toString();
+        cellMovement (cell);
+        cellEffects (cell)
+        cellId++;
+    }, 2000)
+}
+
+function cellMovement (cell) {
+    var currentStep = 0;
     setInterval( function () {	
         if (currentStep < path.length) {
             var nextCell = getNextCell(path[currentStep],path[currentStep+1]);
-            TweenMax.to(purpleCell, 0.25,{
-                x: purpleCell.x + nextCell.offsetX,
-                y: purpleCell.y + nextCell.offsetY,
+            TweenMax.to(cell, 0.25,{
+                x: cell.x + nextCell.offsetX,
+                y: cell.y + nextCell.offsetY,
                 ease: Back.easeInOut.config(1)
             });
             currentStep++;
         }
-    }, 1500);
+    }, 1000);    
 };
 
 function getNextCell(current,next){
-    return {offsetX: ((next.x-current.x)*96), offsetY: ((next.y-current.y)*96)}
-}
+    return {offsetX: ((next.x-current.x)*65), offsetY: ((next.y-current.y)*65)}
+};
+
+
+//Effects
+function cellEffects (cell){
+	cell.animations.add('reflex',[1,2,3,4,5,6,7,8,9,0], 60, false);
+	
+	setInterval(function(){
+			cell.animations.play('reflex', 45, false);
+	},1500);
+};
+
 
 function update() {	
 
