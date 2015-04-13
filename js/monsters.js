@@ -31,8 +31,10 @@ var levelState = {
         setInterval ( function () {
             var randomCell = cellTypes[Math.floor((Math.random() * cellTypes.length))];
             var cell = cells.create(40,40, randomCell.name);
-            cell.scale.set(0.5);
+            cell.scale.set(0.6);
             cell.currentStep = 0;
+			cell.inputEnabled = true;
+			cell.events.onInputDown.add(selectCell,this);
             //cell.name = 'cellId-' + cellId.toString();
             addCellMovement (cell);
             addCellEffects (cell)
@@ -58,6 +60,14 @@ function addCellMovement(cell){
         }
     }, levelsConfig[currentLevel].speed);
 }
+
+
+function selectCell(cell){
+	cell.frame = 9;
+	console.log(cell.x)
+};
+	
+
 //Effects
 function addCellEffects (cell){
 	cell.animations.add('reflex',[1,2,3,4,5,6,7,8,9,0], 60, false);
