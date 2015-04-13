@@ -1,6 +1,7 @@
 var levelsConfig = [
     {
-        speed: 1500,
+        speed: 2000,
+		startPosition : {x:40,y:40},
         path : [
             {x:0,y:0},
             {x:1,y:0},
