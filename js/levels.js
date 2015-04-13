@@ -27,3 +27,30 @@ var levelsConfig = [
 ];
 
 var currentLevel = 0;
+
+var cellTypes = [    
+    {
+        name:'redCell',
+        filename: "assets/redcell.png",
+        w: 110,
+        h: 110
+    },
+    {
+        name:'purpleCell',
+        filename: "assets/purplecell.png",
+        w: 110,
+        h: 110
+    },
+    {
+        name:'blueCell',
+        filename: "assets/bluecell.png",
+        w: 110,
+        h: 110
+    },
+    {
+        name:'yellowCell',
+        filename: "assets/yellowcell.png",
+        w: 110,
+        h: 110
+    }
+];
