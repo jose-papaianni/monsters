@@ -1,10 +1,10 @@
 var scale = 0.5;
-var cellSize = cellTypes[0].w*scale;
+var cellSize = 150*scale;
 
 var levelState = {
     preload: function () {
         game.load.image("backgroundGlobal", "assets/back-pattern.jpg", 150, 150);
-        game.load.spritesheet("path", "assets/path.png", 110, 110);
+        game.load.spritesheet("path", "assets/path-parts.png", 150, 150);
         for (var i = 0; i<cellTypes.length; i++){
             game.load.spritesheet(cellTypes[i].name, cellTypes[i].filename , cellTypes[i].w,cellTypes[i].h);
         }
@@ -40,11 +40,11 @@ var levelState = {
             step.scale.set(scale);
             var nextDir = getDirection(levelPath[i],i==levelPath.length-1 ? {x:-1,y:5} : levelPath[i+1]);
             if (lastDir === nextDir){
-                step.frame = (lastDir === 0 || lastDir === 2) ? 0 : 1;
+                step.frame = (lastDir === 0 || lastDir === 2) ? 1 : 0;
             } else if (lastDir === 0 && nextDir === 1 || lastDir === 3 && nextDir === 2){
-                step.frame = 2;
-            } else if (lastDir === 2 && nextDir === 1 || lastDir === 3 && nextDir === 0){
                 step.frame = 3;
+            } else if (lastDir === 2 && nextDir === 1 || lastDir === 3 && nextDir === 0){
+                step.frame = 2;
             } else if (lastDir === 0 && nextDir === 3 || lastDir === 1 && nextDir === 2){
                 step.frame = 4;
             } else if (lastDir === 1 && nextDir === 0 || lastDir === 2 && nextDir === 3){
@@ -84,7 +84,7 @@ function getNextCell(current,next){
 };
 
 function getCellPosition (step){
-	return {positionX : levelPath[step].x * cellSize + startPosition.x, positionY : levelPath[step].y * cellSize + startPosition.y};
+	return {positionX : levelPath[step].x * cellSize + startPosition.x+10, positionY : levelPath[step].y * cellSize + startPosition.y+10};
 };
 
 
