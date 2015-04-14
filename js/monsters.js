@@ -1,10 +1,13 @@
-var scale = 0.6;
+var scale = 0.55;
 var cellSize = 150*scale;
 
 var levelState = {
     preload: function () {
         game.load.image("backgroundGlobal", "assets/back-pattern.jpg", 150, 150);
+        game.load.image("backgroundBrown", "assets/background-brown.png", 75, 75);
         game.load.spritesheet("path", "assets/path-parts.png", 150, 150);
+        game.load.spritesheet("chromiumFrame", "assets/chromium-frame.png", 482, 595);
+        game.load.spritesheet("cellInjector", "assets/injector.png", 123, 594);
         for (var i = 0; i<cellTypes.length; i++){
             game.load.spritesheet(cellTypes[i].name, cellTypes[i].filename , cellTypes[i].w,cellTypes[i].h);
         }
@@ -15,7 +18,7 @@ var levelState = {
         //background
         for (var i = 0; i < 6; i++){
             xPos = i * 150;
-        backgroundGlobal = game.add.image(xPos, 0, 'backgroundGlobal');
+        var backgroundGlobal = game.add.image(xPos, 0, 'backgroundGlobal');
             for (var j = 0; j < 5; j++){
                     backgroundGlobal = game.add.image(xPos, j * 150, 'backgroundGlobal');
             }
@@ -25,17 +28,33 @@ var levelState = {
 		startPosition = levelsConfig[currentLevel].startPosition;
         
         
-        
+        this.initGameDecoration();
         this.initPath();        
         this.initCellGenerator();        
+		this.initInjector();
         
     },
     
-    
+    initGameDecoration: function(){
+        for (var i = 0; i < 6; i++){
+            var xPos = i * 75 + startPosition.x - 22 ; 
+        var backgroundBrown = game.add.image(xPos, startPosition.y, 'backgroundBrown');
+		backgroundBrown.anchor.set(0.5,0.5);
+            for (var j = 0; j < 7; j++){
+				var yPos = j * 75 + startPosition.y - 14;
+                var backgroundBrown = game.add.image(xPos, yPos, 'backgroundBrown');
+				backgroundBrown.anchor.set(0.5,0.5);
+            }
+        }
+		var chromiumFrame = game.add.image (startPosition.x-55,startPosition.y-70,'chromiumFrame');
+		chromiumFrame.scale.set(0.95,0.95);
+	},
+	
     initPath: function(){
         var path = game.add.group();
         var lastDir = getDirection({x:-1,y:0},levelPath[0]);
         for (var i=0;i<levelPath.length;i++){
+			if (levelPath[i].injector!= true){
             var step = path.create(levelPath[i].x*cellSize+startPosition.x,levelPath[i].y*cellSize+startPosition.y,"path");
             step.scale.set(scale);
 			step.anchor.set(0.5,0.5);
@@ -53,8 +72,9 @@ var levelState = {
             }
             lastDir = nextDir;
         }
+		}
     },
-    
+	
     initCellGenerator: function(){
         cells = game.add.group();
         setInterval ( function () {
@@ -70,7 +90,12 @@ var levelState = {
             addCellEffects (cell)
             //cellId++;
         }, (levelsConfig[currentLevel].speed))
-    }
+    },
+	
+	initInjector: function(){
+		var cellInjector = game.add.image(198,-4,'cellInjector');
+		
+	},
 }
 
 function getDirection(pos1, pos2){

@@ -1,7 +1,7 @@
 var levelsConfig = [
     {
-        speed: 2000,
-		startPosition : {x:140,y:80},
+        speed: 500,
+		startPosition : {x:340,y:90},
         path : [
             {x:0,y:0},
             {x:1,y:0},
@@ -23,14 +23,12 @@ var levelsConfig = [
             {x:2,y:5},
             {x:1,y:5},
             {x:0,y:5},
-			{x:-1,y:5},
-			{x:-1,y:4},
-			{x:-1,y:3},
-			{x:-1,y:2},
-			{x:-1,y:1},
-			{x:-1,y:0},
-			{x:-1,y:-1},
-			
+			{x:-1,y:5,injector: true},
+			{x:-1,y:4,injector: true},
+			{x:-1,y:3,injector: true},
+			{x:-1,y:2,injector: true},
+			{x:-1,y:1,injector: true},
+			{x:-1,y:0,injector: true}			
         ]
     }
 ];
