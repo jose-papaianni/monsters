@@ -1,7 +1,10 @@
+var scale = 0.5;
+var cellSize = cellTypes[0].w*scale;
+
 var levelState = {
     preload: function () {
         game.load.image("backgroundGlobal", "assets/back-pattern.jpg", 150, 150);
-        
+        game.load.spritesheet("path", "assets/path.png", 110, 110);
         for (var i = 0; i<cellTypes.length; i++){
             game.load.spritesheet(cellTypes[i].name, cellTypes[i].filename , cellTypes[i].w,cellTypes[i].h);
         }
@@ -21,18 +24,42 @@ var levelState = {
         levelPath = levelsConfig[currentLevel].path;
 		startPosition = levelsConfig[currentLevel].startPosition;
         
-        cells = game.add.group();
         
+        
+        this.initPath();        
         this.initCellGenerator();        
         
     },
     
     
+    initPath: function(){
+        var path = game.add.group();
+        var lastDir = getDirection({x:-1,y:0},levelPath[0]);
+        for (var i=0;i<levelPath.length;i++){
+            var step = path.create(levelPath[i].x*cellSize+startPosition.x,levelPath[i].y*cellSize+startPosition.y,"path");
+            step.scale.set(scale);
+            var nextDir = getDirection(levelPath[i],i==levelPath.length-1 ? {x:-1,y:5} : levelPath[i+1]);
+            if (lastDir === nextDir){
+                step.frame = (lastDir === 0 || lastDir === 2) ? 0 : 1;
+            } else if (lastDir === 0 && nextDir === 1 || lastDir === 3 && nextDir === 2){
+                step.frame = 2;
+            } else if (lastDir === 2 && nextDir === 1 || lastDir === 3 && nextDir === 0){
+                step.frame = 3;
+            } else if (lastDir === 0 && nextDir === 3 || lastDir === 1 && nextDir === 2){
+                step.frame = 4;
+            } else if (lastDir === 1 && nextDir === 0 || lastDir === 2 && nextDir === 3){
+                step.frame = 5;
+            }
+            lastDir = nextDir;
+        }
+    },
+    
     initCellGenerator: function(){
+        cells = game.add.group();
         setInterval ( function () {
             var randomCell = cellTypes[Math.floor((Math.random() * cellTypes.length))];
             var cell = cells.create(startPosition.x,startPosition.y, randomCell.name);
-            cell.scale.set(0.6);
+            cell.scale.set(scale);
             cell.currentStep = 0;
 			cell.inputEnabled = true;
 			cell.events.onInputDown.add(swapCellPosition,this);
@@ -44,12 +71,20 @@ var levelState = {
     }
 }
 
+function getDirection(pos1, pos2){
+    if (pos1.y === pos2.y){
+        return (pos1.x < pos2.x ? 0 : 2)
+    } else {
+        return (pos1.y < pos2.y ? 1 : 3)
+    }
+}
+                                 
 function getNextCell(current,next){
-    return {offsetX: ((next.x-current.x)*66), offsetY: ((next.y-current.y)*66)}
+    return {offsetX: ((next.x-current.x)*cellSize), offsetY: ((next.y-current.y)*cellSize)}
 };
 
 function getCellPosition (step){
-	return {positionX : levelPath[step].x * 66 + startPosition.x, positionY : levelPath[step].y * 66 + startPosition.y};
+	return {positionX : levelPath[step].x * cellSize + startPosition.x, positionY : levelPath[step].y * cellSize + startPosition.y};
 };
 
 
@@ -90,8 +125,8 @@ function swapCellPosition (cell){
             var currentS = currentCell.currentStep;
             var targetS = targetCell.currentStep;
 			cellDistance = getCellDistance (currentCell,targetCell);
-			if (cellDistance.offsetX <= 66 && cellDistance.offsetY <= 66 !=
-				(cellDistance.offsetX == 66 && cellDistance.offsetY == 66)){
+			if (cellDistance.offsetX <= cellSize && cellDistance.offsetY <= cellSize !=
+				(cellDistance.offsetX == cellSize && cellDistance.offsetY == cellSize)){
 				
 				TweenMax.to(currentCell, 1,{
 							x: getCellPosition(targetS).positionX,
