@@ -78,18 +78,19 @@ var levelState = {
     initCellGenerator: function(){
         cells = game.add.group();
         setInterval ( function () {
+			if (cells.length <= levelPath.length - 1 ){
             var randomCell = cellTypes[Math.floor((Math.random() * cellTypes.length))];
             var cell = cells.create(startPosition.x,startPosition.y, randomCell.name);
 			cell.anchor.set (0.5,0.5);
             cell.scale.set(scale);
             cell.currentStep = 0;
-			cell.inputEnabled = true;
 			cell.events.onInputDown.add(swapCellPosition,this);
             //cell.name = 'cellId-' + cellId.toString();
             addCellMovement (cell);
             addCellEffects (cell)
             //cellId++;
-        }, (levelsConfig[currentLevel].speed))
+        	}
+		}, (levelsConfig[currentLevel].speed))
     },
 	
 	initInjector: function(){
@@ -104,8 +105,8 @@ function getDirection(pos1, pos2){
     } else {
         return (pos1.y < pos2.y ? 1 : 3)
     }
-}
-                                 
+};
+
 function getNextCell(current,next){
     return {offsetX: ((next.x-current.x)*cellSize), offsetY: ((next.y-current.y)*cellSize)}
 };
@@ -114,27 +115,41 @@ function getCellPosition (step){
 	return {positionX : levelPath[step].x * cellSize + startPosition.x, positionY : levelPath[step].y * cellSize + startPosition.y};
 };
 
-
 function addCellMovement(cell){
     setInterval( function () {            
-        if (cell.currentStep < (levelPath.length-1)) {
+        if (cell.currentStep < (levelPath.length-1)) { 
           //  var nextCell = getNextCell(levelPath[cell.currentStep],levelPath[cell.currentStep+1]);
-            TweenMax.to(cell, 0.5,{
+            TweenMax.to(cell, 0.25,{
                 x: getCellPosition(cell.currentStep+1).positionX,
                 y: getCellPosition(cell.currentStep+1).positionY,
-                ease: Back.easeInOut.config(1.4),
+                ease: Back.easeInOut.config(1.2),
 				onStart: allowSelectCell,
-				onStartParams: [false],
+				onStartParams: [cell, cell.currentStep],
 				onComplete: allowSelectCell,
-				onCompleteParams: [true],
+				onCompleteParams: [cell, cell.currentStep],
             });
             cell.currentStep++;
-        }
+        } else if (cell.currentStep = (levelPath.length-1)) {
+			cell.currentStep = 0;
+			 TweenMax.to(cell, 0.25,{
+                x: getCellPosition(cell.currentStep).positionX,
+                y: getCellPosition(cell.currentStep).positionY,
+                ease: Back.easeInOut.config(1.2),
+				onStart: allowSelectCell,
+				onStartParams: [cell, cell.currentStep],
+				onComplete: allowSelectCell,
+				onCompleteParams: [cell, cell.currentStep],
+            });
+		}
     }, levelsConfig[currentLevel].speed);
 }
 
-function allowSelectCell(conditional){
-	return conditional;
+function allowSelectCell(cell, step){
+	if (levelPath[step].allowTarget){
+	cell.inputEnabled = true;
+	} else {
+	cell.inputEnabled = false;
+	}
 };
 
 function getCellDistance(selection,target){
@@ -146,7 +161,7 @@ function swapCellPosition (cell){
         clearInterval(cell.reflexInterval);
 		selectedCells.push (cell);
         cell.frame = 9;
-        if ( allowSelectCell && selectedCells.length === 2 ){
+        if (selectedCells.length === 2 ){
 			var currentCell = selectedCells[0];
 			var targetCell = selectedCells[1];
             var currentS = currentCell.currentStep;
@@ -155,13 +170,13 @@ function swapCellPosition (cell){
 			if (cellDistance.offsetX <= cellSize && cellDistance.offsetY <= cellSize !=
 				(cellDistance.offsetX == cellSize && cellDistance.offsetY == cellSize)){
 				
-				TweenMax.to(currentCell, 1,{
+				TweenMax.to(currentCell, 0.25,{
 							x: getCellPosition(targetS).positionX,
 							y: getCellPosition(targetS).positionY,
 							ease: Power3.easeOut,
                             onComplete: currentCell.frame = 0
 						});
-				TweenMax.to(targetCell, 1,{
+				TweenMax.to(targetCell, 0.25,{
 							x: getCellPosition(currentS).positionX,
 							y: getCellPosition(currentS).positionY,
 							ease: Power3.easeOut,
@@ -170,12 +185,13 @@ function swapCellPosition (cell){
 				currentCell.currentStep = targetS;
 				targetCell.currentStep = currentS;
 				
-			} else if (allowSelectCell){
+			} else {
                 currentCell.frame = 0;
                 var currentCellPosX = getCellPosition(currentS).positionX 
-                currentCell.x = currentCellPosX -4;
+                currentCell.x = currentCellPosX -3;
+				selectedCells = []
                 TweenMax.to (currentCell, 0.05, {
-                    x: currentCellPosX + 8,
+                    x: currentCellPosX + 6,
                     yoyo: true,
                     repeat: 10,
                     onComplete: function () { currentCell.x = currentCellPosX }
