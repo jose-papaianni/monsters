@@ -32,6 +32,7 @@ var levelState = {
         this.initPath();        
         this.initCellGenerator();        
 		this.initInjector();
+        addCellMovement ();
         
     },
     
@@ -78,17 +79,23 @@ var levelState = {
     initCellGenerator: function(){
         cells = game.add.group();
         setInterval ( function () {
-            var randomCell = cellTypes[Math.floor((Math.random() * cellTypes.length))];
-            var cell = cells.create(startPosition.x,startPosition.y, randomCell.name);
-			cell.anchor.set (0.5,0.5);
-            cell.scale.set(scale);
-            cell.currentStep = 0;
-			cell.inputEnabled = true;
-			cell.events.onInputDown.add(swapCellPosition,this);
-            //cell.name = 'cellId-' + cellId.toString();
-            addCellMovement (cell);
-            addCellEffects (cell)
-            //cellId++;
+            var childrenInFirstCell = cells.filter(function(cell, index, children) {
+                return cell.currentStep === 0 ? true : false;
+            }, true);
+            if (childrenInFirstCell.total === 0) {
+                var randomCell = cellTypes[Math.floor((Math.random() * cellTypes.length))];
+                var cell = cells.create(startPosition.x,startPosition.y, randomCell.name);
+                cell.anchor.set (0.5,0.5);
+                cell.scale.set(scale);
+                cell.currentStep = 0;
+                cell.inputEnabled = true;
+                cell.events.onInputDown.add(swapCellPosition,this);
+                //cell.name = 'cellId-' + cellId.toString();
+                //addCellMovement (cell);
+                addCellEffects (cell)
+                //cellId++;
+            }
+            
         }, (levelsConfig[currentLevel].speed))
     },
 	
@@ -115,22 +122,43 @@ function getCellPosition (step){
 };
 
 
-function addCellMovement(cell){
-    setInterval( function () {            
-        if (cell.currentStep < (levelPath.length-1)) {
-          //  var nextCell = getNextCell(levelPath[cell.currentStep],levelPath[cell.currentStep+1]);
-            TweenMax.to(cell, 0.5,{
-                x: getCellPosition(cell.currentStep+1).positionX,
-                y: getCellPosition(cell.currentStep+1).positionY,
-                ease: Back.easeInOut.config(1.4),
-				onStart: allowSelectCell,
-				onStartParams: [false],
-				onComplete: allowSelectCell,
-				onCompleteParams: [true],
-            });
-            cell.currentStep++;
-        }
+function addCellMovement(){
+    setInterval( function () {
+        cells.forEach(moveCell,this,false);
+        /*
+    if (cell.currentStep < (levelPath.length-1)) {      
+        TweenMax.to(cell, 0.5,{
+            x: getCellPosition(cell.currentStep+1).positionX,
+            y: getCellPosition(cell.currentStep+1).positionY,
+            ease: Back.easeInOut.config(1.4),
+            onStart: allowSelectCell,
+            onStartParams: [false],
+            onComplete: allowSelectCell,
+            onCompleteParams: [true],
+        });
+        cell.currentStep++;
+    }*/
     }, levelsConfig[currentLevel].speed);
+    
+}
+
+function moveCell(cell){
+    var cellIndex = cells.getChildIndex(cell);
+    var prevCell = cellIndex>0 ? cells.getChildAt(cellIndex-1) : null;
+    if (cell.currentStep < (levelPath.length-1) 
+        && (!prevCell || (prevCell.currentStep-cell.currentStep>1))) {
+      //  var nextCell = getNextCell(levelPath[cell.currentStep],levelPath[cell.currentStep+1]);
+        TweenMax.to(cell, 0.5,{
+            x: getCellPosition(cell.currentStep+1).positionX,
+            y: getCellPosition(cell.currentStep+1).positionY,
+            ease: Back.easeInOut.config(1.4),
+            onStart: allowSelectCell,
+            onStartParams: [false],
+            onComplete: allowSelectCell,
+            onCompleteParams: [true],
+        });
+        cell.currentStep++;
+    }
 }
 
 function allowSelectCell(conditional){
@@ -149,6 +177,7 @@ function swapCellPosition (cell){
         if ( allowSelectCell && selectedCells.length === 2 ){
 			var currentCell = selectedCells[0];
 			var targetCell = selectedCells[1];
+            cells.swapChildren(currentCell,targetCell);
             var currentS = currentCell.currentStep;
             var targetS = targetCell.currentStep;
 			cellDistance = getCellDistance (currentCell,targetCell);
@@ -184,6 +213,7 @@ function swapCellPosition (cell){
 			addCellEffects(cell);
             cell.frame = 0;
 			selectedCells = []
+            
 		} 
 	}
 }
