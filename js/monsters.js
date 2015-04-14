@@ -1,4 +1,4 @@
-var scale = 0.5;
+var scale = 0.6;
 var cellSize = 150*scale;
 
 var levelState = {
@@ -38,6 +38,7 @@ var levelState = {
         for (var i=0;i<levelPath.length;i++){
             var step = path.create(levelPath[i].x*cellSize+startPosition.x,levelPath[i].y*cellSize+startPosition.y,"path");
             step.scale.set(scale);
+			step.anchor.set(0.5,0.5);
             var nextDir = getDirection(levelPath[i],i==levelPath.length-1 ? {x:-1,y:5} : levelPath[i+1]);
             if (lastDir === nextDir){
                 step.frame = (lastDir === 0 || lastDir === 2) ? 1 : 0;
@@ -59,6 +60,7 @@ var levelState = {
         setInterval ( function () {
             var randomCell = cellTypes[Math.floor((Math.random() * cellTypes.length))];
             var cell = cells.create(startPosition.x,startPosition.y, randomCell.name);
+			cell.anchor.set (0.5,0.5);
             cell.scale.set(scale);
             cell.currentStep = 0;
 			cell.inputEnabled = true;
@@ -84,7 +86,7 @@ function getNextCell(current,next){
 };
 
 function getCellPosition (step){
-	return {positionX : levelPath[step].x * cellSize + startPosition.x+10, positionY : levelPath[step].y * cellSize + startPosition.y+10};
+	return {positionX : levelPath[step].x * cellSize + startPosition.x, positionY : levelPath[step].y * cellSize + startPosition.y};
 };
 
 
@@ -95,7 +97,7 @@ function addCellMovement(cell){
             TweenMax.to(cell, 0.5,{
                 x: getCellPosition(cell.currentStep+1).positionX,
                 y: getCellPosition(cell.currentStep+1).positionY,
-                ease: Back.easeInOut.config(1),
+                ease: Back.easeInOut.config(1.4),
 				onStart: allowSelectCell,
 				onStartParams: [false],
 				onComplete: allowSelectCell,
