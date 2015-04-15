@@ -111,8 +111,8 @@ function getDirection(pos1, pos2){
     } else {
         return (pos1.y < pos2.y ? 1 : 3)
     }
-}
-                                 
+};
+
 function getNextCell(current,next){
     return {offsetX: ((next.x-current.x)*cellSize), offsetY: ((next.y-current.y)*cellSize)}
 };
@@ -121,23 +121,9 @@ function getCellPosition (step){
 	return {positionX : levelPath[step].x * cellSize + startPosition.x, positionY : levelPath[step].y * cellSize + startPosition.y};
 };
 
-
 function addCellMovement(){
     setInterval( function () {
         cells.forEach(moveCell,this,false);
-        /*
-    if (cell.currentStep < (levelPath.length-1)) {      
-        TweenMax.to(cell, 0.5,{
-            x: getCellPosition(cell.currentStep+1).positionX,
-            y: getCellPosition(cell.currentStep+1).positionY,
-            ease: Back.easeInOut.config(1.4),
-            onStart: allowSelectCell,
-            onStartParams: [false],
-            onComplete: allowSelectCell,
-            onCompleteParams: [true],
-        });
-        cell.currentStep++;
-    }*/
     }, levelsConfig[currentLevel].speed);
     
 }
@@ -147,22 +133,25 @@ function moveCell(cell){
     var prevCell = cellIndex>0 ? cells.getChildAt(cellIndex-1) : null;
     if (cell.currentStep < (levelPath.length-1) 
         && (!prevCell || (prevCell.currentStep-cell.currentStep>1))) {
-      //  var nextCell = getNextCell(levelPath[cell.currentStep],levelPath[cell.currentStep+1]);
         TweenMax.to(cell, 0.5,{
             x: getCellPosition(cell.currentStep+1).positionX,
             y: getCellPosition(cell.currentStep+1).positionY,
-            ease: Back.easeInOut.config(1.4),
+            ease: Back.easeInOut.config(1.2),
             onStart: allowSelectCell,
-            onStartParams: [false],
+            onStartParams: [cell, cell.currentStep],
             onComplete: allowSelectCell,
-            onCompleteParams: [true],
+            onCompleteParams: [cell, cell.currentStep],
         });
         cell.currentStep++;
     }
 }
 
-function allowSelectCell(conditional){
-	return conditional;
+function allowSelectCell(cell, step){
+	if (levelPath[step].allowTarget){
+	cell.inputEnabled = true;
+	} else {
+	cell.inputEnabled = false;
+	}
 };
 
 function getCellDistance(selection,target){
@@ -174,23 +163,23 @@ function swapCellPosition (cell){
         clearInterval(cell.reflexInterval);
 		selectedCells.push (cell);
         cell.frame = 9;
-        if ( allowSelectCell && selectedCells.length === 2 ){
+        if (selectedCells.length === 2 ){
 			var currentCell = selectedCells[0];
 			var targetCell = selectedCells[1];
-            cells.swapChildren(currentCell,targetCell);
+            
             var currentS = currentCell.currentStep;
             var targetS = targetCell.currentStep;
 			cellDistance = getCellDistance (currentCell,targetCell);
 			if (cellDistance.offsetX <= cellSize && cellDistance.offsetY <= cellSize !=
 				(cellDistance.offsetX == cellSize && cellDistance.offsetY == cellSize)){
-				
-				TweenMax.to(currentCell, 1,{
+				cells.swapChildren(currentCell,targetCell);
+				TweenMax.to(currentCell, 0.25,{
 							x: getCellPosition(targetS).positionX,
 							y: getCellPosition(targetS).positionY,
 							ease: Power3.easeOut,
                             onComplete: currentCell.frame = 0
 						});
-				TweenMax.to(targetCell, 1,{
+				TweenMax.to(targetCell, 0.25,{
 							x: getCellPosition(currentS).positionX,
 							y: getCellPosition(currentS).positionY,
 							ease: Power3.easeOut,
@@ -199,12 +188,13 @@ function swapCellPosition (cell){
 				currentCell.currentStep = targetS;
 				targetCell.currentStep = currentS;
 				
-			} else if (allowSelectCell){
+			} else {
                 currentCell.frame = 0;
                 var currentCellPosX = getCellPosition(currentS).positionX 
-                currentCell.x = currentCellPosX -4;
+                currentCell.x = currentCellPosX -3;
+				selectedCells = []
                 TweenMax.to (currentCell, 0.05, {
-                    x: currentCellPosX + 8,
+                    x: currentCellPosX + 6,
                     yoyo: true,
                     repeat: 10,
                     onComplete: function () { currentCell.x = currentCellPosX }
