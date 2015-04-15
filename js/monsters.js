@@ -6,6 +6,7 @@ var levelState = {
         game.load.image("backgroundGlobal", "assets/back-pattern.jpg", 150, 150);
         game.load.image("backgroundBrown", "assets/background-brown.png", 75, 75);
         game.load.spritesheet("path", "assets/path-parts.png", 150, 150);
+        game.load.spritesheet("cover", "assets/cover.png", 150, 150);
         game.load.spritesheet("chromiumFrame", "assets/chromium-frame.png", 482, 595);
         game.load.spritesheet("cellInjector", "assets/injector.png", 123, 594);
         for (var i = 0; i<cellTypes.length; i++){
@@ -25,6 +26,7 @@ var levelState = {
         }
         selectedCells = [];
         levelPath = levelsConfig[currentLevel].path;
+        coverMatrix = levelsConfig[currentLevel].cover;
 		startPosition = levelsConfig[currentLevel].startPosition;
         
         
@@ -32,6 +34,7 @@ var levelState = {
         this.initPath();        
         this.initCellGenerator();        
 		this.initInjector();
+        this.initCover();
         addCellMovement ();
         
     },
@@ -52,27 +55,27 @@ var levelState = {
 	},
 	
     initPath: function(){
-        var path = game.add.group();
+        path = game.add.group();
         var lastDir = getDirection({x:-1,y:0},levelPath[0]);
         for (var i=0;i<levelPath.length;i++){
 			if (levelPath[i].injector!= true){
-            var step = path.create(levelPath[i].x*cellSize+startPosition.x,levelPath[i].y*cellSize+startPosition.y,"path");
-            step.scale.set(scale);
-			step.anchor.set(0.5,0.5);
-            var nextDir = getDirection(levelPath[i],i==levelPath.length-1 ? {x:-1,y:5} : levelPath[i+1]);
-            if (lastDir === nextDir){
-                step.frame = (lastDir === 0 || lastDir === 2) ? 1 : 0;
-            } else if (lastDir === 0 && nextDir === 1 || lastDir === 3 && nextDir === 2){
-                step.frame = 3;
-            } else if (lastDir === 2 && nextDir === 1 || lastDir === 3 && nextDir === 0){
-                step.frame = 2;
-            } else if (lastDir === 0 && nextDir === 3 || lastDir === 1 && nextDir === 2){
-                step.frame = 4;
-            } else if (lastDir === 1 && nextDir === 0 || lastDir === 2 && nextDir === 3){
-                step.frame = 5;
+                var step = path.create(levelPath[i].x*cellSize+startPosition.x,levelPath[i].y*cellSize+startPosition.y,"path");
+                step.scale.set(scale);
+                step.anchor.set(0.5,0.5);                
+                var nextDir = getDirection(levelPath[i],i==levelPath.length-1 ? {x:-1,y:5} : levelPath[i+1]);
+                if (lastDir === nextDir){
+                    step.frame = (lastDir === 0 || lastDir === 2) ? 1 : 0;
+                } else if (lastDir === 0 && nextDir === 1 || lastDir === 3 && nextDir === 2){
+                    step.frame = 3;
+                } else if (lastDir === 2 && nextDir === 1 || lastDir === 3 && nextDir === 0){
+                    step.frame = 2;
+                } else if (lastDir === 0 && nextDir === 3 || lastDir === 1 && nextDir === 2){
+                    step.frame = 4;
+                } else if (lastDir === 1 && nextDir === 0 || lastDir === 2 && nextDir === 3){
+                    step.frame = 5;
+                }
+                lastDir = nextDir;
             }
-            lastDir = nextDir;
-        }
 		}
     },
 	
@@ -103,6 +106,19 @@ var levelState = {
 		var cellInjector = game.add.image(198,-4,'cellInjector');
 		
 	},
+    
+    initCover: function(){
+        cover = game.add.group();
+        for (var i=0;i<coverMatrix.length;i++){
+            for (var j=0;j<coverMatrix[i].length;j++){
+                if (coverMatrix[i][j]===1){
+                    var step = cover.create(j*cellSize+startPosition.x,i*cellSize+startPosition.y,"cover");
+                    step.scale.set(scale);
+                    step.anchor.set(0.5,0.5);
+                }
+            }
+        }
+    }
 }
 
 function getDirection(pos1, pos2){
@@ -137,20 +153,31 @@ function moveCell(cell){
             x: getCellPosition(cell.currentStep+1).positionX,
             y: getCellPosition(cell.currentStep+1).positionY,
             ease: Back.easeInOut.config(1.2),
-            onStart: allowSelectCell,
-            onStartParams: [cell, cell.currentStep],
-            onComplete: allowSelectCell,
-            onCompleteParams: [cell, cell.currentStep],
+            //onStart: allowSelectCell,
+            //onStartParams: [cell, cell.currentStep],
+            onComplete: deselectIfCovered,
+            onCompleteParams: [cell],
         });
         cell.currentStep++;
     }
 }
 
+function deselectIfCovered(cell){
+    if (selectedCells.indexOf(cell)!=-1 && isCovered(cell.currentStep)){
+        selectedCells = [];
+        cell.frame = 0;            
+    }
+}
+
+function isCovered(step){
+    return levelPath[step].injector || coverMatrix[levelPath[step].y][levelPath[step].x] === 1;
+}
+
 function allowSelectCell(cell, step){
-	if (levelPath[step].allowTarget){
-	cell.inputEnabled = true;
+	if (!levelPath[step].injector && !isCovered(step)){
+	   cell.inputEnabled = true;
 	} else {
-	cell.inputEnabled = false;
+	   cell.inputEnabled = false;
 	}
 };
 
@@ -158,8 +185,8 @@ function getCellDistance(selection,target){
 	return {offsetX: Math.abs(((selection.x-target.x))), offsetY: Math.abs(((selection.y-target.y)))}
 };
 
-function swapCellPosition (cell){	
-	if (allowSelectCell && selectedCells.length <2){
+function swapCellPosition (cell){
+	if (!isCovered(cell.currentStep) && selectedCells.length <2){
         clearInterval(cell.reflexInterval);
 		selectedCells.push (cell);
         cell.frame = 9;
@@ -171,23 +198,23 @@ function swapCellPosition (cell){
             var targetS = targetCell.currentStep;
 			cellDistance = getCellDistance (currentCell,targetCell);
 			if (cellDistance.offsetX <= cellSize && cellDistance.offsetY <= cellSize !=
-				(cellDistance.offsetX == cellSize && cellDistance.offsetY == cellSize)){
-				cells.swapChildren(currentCell,targetCell);
-				TweenMax.to(currentCell, 0.25,{
-							x: getCellPosition(targetS).positionX,
-							y: getCellPosition(targetS).positionY,
-							ease: Power3.easeOut,
-                            onComplete: currentCell.frame = 0
-						});
-				TweenMax.to(targetCell, 0.25,{
-							x: getCellPosition(currentS).positionX,
-							y: getCellPosition(currentS).positionY,
-							ease: Power3.easeOut,
-                            onComplete: targetCell.frame = 0
-						});
-				currentCell.currentStep = targetS;
-				targetCell.currentStep = currentS;
-				
+				(cellDistance.offsetX == cellSize && cellDistance.offsetY == cellSize) && (!isCovered(currentS) && !isCovered(targetS))){
+                    cells.swapChildren(currentCell,targetCell);
+                    TweenMax.to(currentCell, 0.25,{
+                                x: getCellPosition(targetS).positionX,
+                                y: getCellPosition(targetS).positionY,
+                                ease: Power3.easeOut,
+                                onComplete: currentCell.frame = 0
+                            });
+                    TweenMax.to(targetCell, 0.25,{
+                                x: getCellPosition(currentS).positionX,
+                                y: getCellPosition(currentS).positionY,
+                                ease: Power3.easeOut,
+                                onComplete: targetCell.frame = 0
+                            });
+                    currentCell.currentStep = targetS;
+                    targetCell.currentStep = currentS;
+                
 			} else {
                 currentCell.frame = 0;
                 var currentCellPosX = getCellPosition(currentS).positionX 

@@ -29,7 +29,15 @@ var levelsConfig = [
 			{x:-1,y:2,allowTarget: false,injector: true},
 			{x:-1,y:1,allowTarget: false,injector: true},
 			{x:-1,y:0,allowTarget: false,injector: true}			
-        ]
+        ],
+        cover : [ 
+                    [1,1,1,1,1],
+                    [1,1,1,1,1],
+                    [1,1,1,0,0],
+                    [1,1,1,0,0],
+                    [1,1,1,0,0],
+                    [1,1,1,1,1]
+                ]
     }
 ];
 
