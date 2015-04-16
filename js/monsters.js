@@ -28,13 +28,15 @@ var levelState = {
         levelPath = levelsConfig[currentLevel].path;
         coverMatrix = levelsConfig[currentLevel].cover;
 		startPosition = levelsConfig[currentLevel].startPosition;
-        
-        
         this.initGameDecoration();
+
+        path = game.add.group();
+        cells = game.add.group();
+        cover = game.add.group();
+        
         this.initPath();        
         this.initCellGenerator();        
 		this.initInjector();
-        this.initCover();
         addCellMovement ();
         
     },
@@ -55,13 +57,14 @@ var levelState = {
 	},
 	
     initPath: function(){
-        path = game.add.group();
         var lastDir = getDirection({x:-1,y:0},levelPath[0]);
         for (var i=0;i<levelPath.length;i++){
 			if (levelPath[i].injector!= true){
-                var step = path.create(levelPath[i].x*cellSize+startPosition.x,levelPath[i].y*cellSize+startPosition.y,"path");
+                var x = levelPath[i].x*cellSize+startPosition.x;
+                var y = levelPath[i].y*cellSize+startPosition.y;
+                var step = path.create(x,y,"path");
                 step.scale.set(scale);
-                step.anchor.set(0.5,0.5);                
+                step.anchor.set(0.5,0.5);
                 var nextDir = getDirection(levelPath[i],i==levelPath.length-1 ? {x:-1,y:5} : levelPath[i+1]);
                 if (lastDir === nextDir){
                     step.frame = (lastDir === 0 || lastDir === 2) ? 1 : 0;
@@ -74,13 +77,18 @@ var levelState = {
                 } else if (lastDir === 1 && nextDir === 0 || lastDir === 2 && nextDir === 3){
                     step.frame = 5;
                 }
+                if (!levelPath[i].allowTarget){
+                    var tubedPath = cover.create(x,y,"tubedPath");
+                    tubedPath.scale.set(scale);
+                    tubedPath.anchor.set(0.5,0.5);
+                    tubedPath.frame = step.frame;
+                }
                 lastDir = nextDir;
             }
 		}
     },
 	
     initCellGenerator: function(){
-        cells = game.add.group();
         setInterval ( function () {
             var childrenInFirstCell = cells.filter(function(cell, index, children) {
                 return cell.currentStep === 0 ? true : false;
@@ -105,20 +113,7 @@ var levelState = {
 	initInjector: function(){
 		var cellInjector = game.add.image(198,-4,'cellInjector');
 		
-	},
-    
-    initCover: function(){
-        cover = game.add.group();
-        for (var i=0;i<levelPath.length;i++){
-			if (levelPath[i].injector!= true && !levelPath[i].allowTarget){
-                var frameT = path.getChildAt(i).animations.currentFrame.index;
-                var tubedPath= cover.create(levelPath[i].x*cellSize+startPosition.x,levelPath[i].y*cellSize+startPosition.y,"tubedPath");
-                tubedPath.scale.set(scale);
-                tubedPath.anchor.set(0.5,0.5);
-                tubedPath.frame = frameT;
-            }
-		}
-    }
+	}
 }
 
 function getDirection(pos1, pos2){
