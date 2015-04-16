@@ -6,7 +6,7 @@ var levelState = {
         game.load.image("backgroundGlobal", "assets/back-pattern.jpg", 150, 150);
         game.load.image("backgroundBrown", "assets/background-brown.png", 75, 75);
         game.load.spritesheet("path", "assets/path-parts.png", 150, 150);
-        game.load.spritesheet("cover", "assets/cover.png", 150, 150);
+        game.load.spritesheet("tubedPath", "assets/path-tube.png", 150, 150);
         game.load.spritesheet("chromiumFrame", "assets/chromium-frame.png", 482, 595);
         game.load.spritesheet("cellInjector", "assets/injector.png", 123, 594);
         for (var i = 0; i<cellTypes.length; i++){
@@ -109,15 +109,15 @@ var levelState = {
     
     initCover: function(){
         cover = game.add.group();
-        for (var i=0;i<coverMatrix.length;i++){
-            for (var j=0;j<coverMatrix[i].length;j++){
-                if (coverMatrix[i][j]===1){
-                    var step = cover.create(j*cellSize+startPosition.x,i*cellSize+startPosition.y,"cover");
-                    step.scale.set(scale);
-                    step.anchor.set(0.5,0.5);
-                }
+        for (var i=0;i<levelPath.length;i++){
+			if (levelPath[i].injector!= true && !levelPath[i].allowTarget){
+                var frameT = path.getChildAt(i).animations.currentFrame.index;
+                var tubedPath= cover.create(levelPath[i].x*cellSize+startPosition.x,levelPath[i].y*cellSize+startPosition.y,"tubedPath");
+                tubedPath.scale.set(scale);
+                tubedPath.anchor.set(0.5,0.5);
+                tubedPath.frame = frameT;
             }
-        }
+		}
     }
 }
 
@@ -170,7 +170,7 @@ function deselectIfCovered(cell){
 }
 
 function isCovered(step){
-    return levelPath[step].injector || coverMatrix[levelPath[step].y][levelPath[step].x] === 1;
+    return levelPath[step].injector || levelPath[step].allowTarget != true;
 }
 
 function allowSelectCell(cell, step){
