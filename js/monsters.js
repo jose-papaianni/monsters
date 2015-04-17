@@ -5,6 +5,7 @@ var levelState = {
     preload: function () {
         game.load.image("backgroundGlobal", "assets/back-pattern.jpg", 150, 150);
         game.load.image("backgroundBrown", "assets/background-brown.png", 75, 75);
+        game.load.image("decorationTube", "assets/tube-end-decoration.png", 7, 100);
         game.load.spritesheet("path", "assets/path-parts.png", 150, 150);
         game.load.spritesheet("tubedPath", "assets/path-tube.png", 150, 150);
         game.load.spritesheet("chromiumFrame", "assets/chromium-frame.png", 482, 595);
@@ -82,6 +83,21 @@ var levelState = {
                     tubedPath.scale.set(scale);
                     tubedPath.anchor.set(0.5,0.5);
                     tubedPath.frame = step.frame;
+                    if (levelPath[i-1].allowTarget){
+                        var tubedDecoration = cover.create(x,y,"decorationTube");
+                        tubedDecoration.anchor.set(0.5,0.5);
+                        tubedDecoration.scale.set(scale);
+                        tubedDecoration.x = tubedDecoration.x - cellSize/2; 
+                        
+                    } else if (levelPath[i+1].allowTarget){
+                        var tubedDecoration = cover.create(x,y,"decorationTube");
+                        tubedDecoration.anchor.set(0.5,0.5);
+                        tubedDecoration.scale.set(scale);
+                        tubedDecoration.x = tubedDecoration.x + cellSize/2; 
+                        if (levelPath[i].y != levelPath[i+1].y || levelPath[i].y != levelPath[i-1].y ){
+                        tubedDecoration.rotation = 1.56;
+                        };
+                    } 
                 }
                 lastDir = nextDir;
             }
