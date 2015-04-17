@@ -103,6 +103,7 @@ var levelState = {
             if (childrenInFirstCell.total === 0) {
                 var randomCell = cellTypes[Math.floor((Math.random() * cellTypes.length))];
                 var cell = cells.create(startPosition.x,startPosition.y, randomCell.name);
+                cell.type = randomCell.name;
                 cell.anchor.set (0.5,0.5);
                 cell.scale.set(scale);
                 cell.currentStep = 0;
@@ -155,9 +156,43 @@ function getCellPosition (step){
 
 function addCellMovement(){
     setInterval( function () {
+        checkSolution();
         cells.forEach(moveCell,this,false);
     }, levelsConfig[currentLevel].speed);
     
+}
+
+function checkSolution(){
+    if (injectorFull()) {
+        var solution = 0;
+        var type = cells.getChildAt(0).type;
+        for (var i=1; i<6; i++){
+            if (cells.getChildAt(i).type === type){
+                solution++;
+            } else {
+                if (solution<2){
+                    solution = 0;
+                }
+                break;
+            }
+        }
+       
+        if (solution>0){
+            cells.removeBetween(0,solution,true);            
+        }        
+    }
+}
+
+function injectorFull(){
+    if (cells.total >=6){
+        for (var i=0; i<6; i++){
+            if (!levelPath[cells.getChildAt(i).currentStep].injector){
+                return false;
+            }
+        }
+        return true;
+    }
+    return false;
 }
 
 function moveCell(cell){

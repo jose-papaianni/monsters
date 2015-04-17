@@ -47,7 +47,7 @@ var cellTypes = [
         filename: "assets/purplecell.png",
         w: 110,
         h: 110
-    },
+    } /*,
     {
         name:'blueCell',
         filename: "assets/bluecell.png",
@@ -59,5 +59,5 @@ var cellTypes = [
         filename: "assets/yellowcell.png",
         w: 110,
         h: 110
-    }
+    }*/
 ];
