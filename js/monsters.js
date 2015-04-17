@@ -7,6 +7,8 @@ var levelState = {
         game.load.image("backgroundBrown", "assets/background-brown.png", 75, 75);
         game.load.image("decorationTube", "assets/tube-end-decoration.png", 7, 100);
         game.load.spritesheet("path", "assets/path-parts.png", 150, 150);
+        game.load.spritesheet("blended-purple", "assets/test-morph.png", 110, 150);
+        game.load.spritesheet("marker", "assets/marker.png", 150, 40);
         game.load.spritesheet("tubedPath", "assets/path-tube.png", 150, 150);
         game.load.spritesheet("chromiumFrame", "assets/chromium-frame.png", 482, 595);
         game.load.spritesheet("cellInjector", "assets/injector.png", 123, 594);
@@ -33,6 +35,7 @@ var levelState = {
 
         path = game.add.group();
         cells = game.add.group();
+        blendedCells = game.add.group();
         cover = game.add.group();
         
         this.initPath();        
@@ -119,8 +122,10 @@ var levelState = {
     },
 	
 	initInjector: function(){
-		var cellInjector = game.add.image(198,-4,'cellInjector');
-		
+		marker = game.add.sprite(215,40,'marker');
+        marker.scale.set(scale);
+        marker.frame = 0;
+        var cellInjector = game.add.image(198,-4,'cellInjector');
 	}
 }
 
@@ -177,8 +182,38 @@ function checkSolution(){
             }
         }
        
-        if (solution>0){
-            cells.removeBetween(0,solution,true);            
+        if (solution>0){            
+            TweenMax.to(marker, 0.5,{
+                y : marker.y + ((solution+1)*cellSize),
+                onComplete: function(){
+                    var anim;
+                    for (var i=0;i<=solution;i++){
+                        var cell = cells.getChildAt(i);                        
+                        var blended = blendedCells.create(cell.x,cell.y,"blended-purple");                        
+                        blended.scale.set(scale);
+                        blended.anchor.set(0.5);
+                        blended.animations.add('blend',[0,1,2,3,4,5,6,7,8,9,10], 60, false);
+                        anim = blended.animations.play("blend");
+                    }
+                    cells.removeBetween(0,solution,true);
+                    anim.onComplete.add(function(){
+                        var diff = marker.y - 40;
+                        blendedCells.forEach(function(blended){
+                            TweenMax.to(blended, 0.5,{
+                                y : blended.y-diff,
+                                onComplete: function(b){
+                                    blendedCells.remove(b,true);
+                                },
+                                onCompleteParams: [blended]
+                            });
+                        },this,false);
+                        TweenMax.to(marker, 0.5,{                            
+                            y : 40         
+                        });
+                    }, this);
+                    
+                }
+            });
         }        
     }
 }
