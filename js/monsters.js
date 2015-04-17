@@ -289,7 +289,7 @@ function swapCellPosition (cell){
 
 //Effects
 function addCellEffects (cell){
-	cell.animations.add('reflex',[1,2,3,4,5,6,7,8,0], 60, false);
+	cell.animations.add('reflex',[0,1,2,3,4,5,6,7,8,9,10], 60, false);
 	cell.reflexInterval = setInterval(function(){
 			cell.animations.play('reflex', 45, false);
 	},2500);
