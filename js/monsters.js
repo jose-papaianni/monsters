@@ -83,20 +83,11 @@ var levelState = {
                     tubedPath.scale.set(scale);
                     tubedPath.anchor.set(0.5,0.5);
                     tubedPath.frame = step.frame;
-                    if (levelPath[i-1].allowTarget){
-                        var tubedDecoration = cover.create(x,y,"decorationTube");
-                        tubedDecoration.anchor.set(0.5,0.5);
-                        tubedDecoration.scale.set(scale);
-                        tubedDecoration.x = tubedDecoration.x - cellSize/2; 
-                        
-                    } else if (levelPath[i+1].allowTarget){
-                        var tubedDecoration = cover.create(x,y,"decorationTube");
-                        tubedDecoration.anchor.set(0.5,0.5);
-                        tubedDecoration.scale.set(scale);
-                        tubedDecoration.x = tubedDecoration.x + cellSize/2; 
-                        if (levelPath[i].y != levelPath[i+1].y || levelPath[i].y != levelPath[i-1].y ){
-                        tubedDecoration.rotation = 1.56;
-                        };
+                    if (i>0 && levelPath[i-1].allowTarget){
+                        setTubeEnd(x,y,getDirection(levelPath[i],levelPath[i-1]));                        
+                    } 
+                    if (i<levelPath.length-1 && levelPath[i+1].allowTarget){
+                        setTubeEnd(x,y,getDirection(levelPath[i],levelPath[i+1]));
                     } 
                 }
                 lastDir = nextDir;
@@ -130,6 +121,20 @@ var levelState = {
 		var cellInjector = game.add.image(198,-4,'cellInjector');
 		
 	}
+}
+
+function setTubeEnd(x,y,direction){
+    var tubedDecoration = cover.create(x,y,"decorationTube");
+    var offsetDir = direction >= 2 ? -1 : 1;
+    tubedDecoration.anchor.set(0.5,0.5);
+    tubedDecoration.scale.set(scale);
+    if (direction == 1 || direction == 3){
+        tubedDecoration.angle = 90;
+        tubedDecoration.y = tubedDecoration.y + ((cellSize/2)*offsetDir); 
+    } else {
+        tubedDecoration.x = tubedDecoration.x + ((cellSize/2)*offsetDir); 
+    }
+    
 }
 
 function getDirection(pos1, pos2){
