@@ -36,6 +36,10 @@ var levelState = {
         path = game.add.group();
         cells = game.add.group();
         blendedCells = game.add.group();
+        injectorMask = game.add.graphics(100,30);
+        injectorMask.beginFill(0xffffff);
+        injectorMask.drawRect(100,0,100,580);
+        blendedCells.mask = injectorMask;
         cover = game.add.group();
         
         this.initPath();        
@@ -126,6 +130,7 @@ var levelState = {
         marker.scale.set(scale);
         marker.frame = 0;
         var cellInjector = game.add.image(198,-4,'cellInjector');
+
 	}
 }
 
@@ -192,7 +197,7 @@ function checkSolution(){
                         var blended = blendedCells.create(cell.x,cell.y,"blended-purple");                        
                         blended.scale.set(scale);
                         blended.anchor.set(0.5);
-                        blended.animations.add('blend',[0,1,2,3,4,5,6,7,8,9,10], 60, false);
+                        blended.animations.add('blend',[0,1,2,3,4,5,6,7,8,9,10,11,12,13], 60, false);
                         anim = blended.animations.play("blend");
                     }
                     cells.removeBetween(0,solution,true);
@@ -200,6 +205,7 @@ function checkSolution(){
                         var diff = marker.y - 40;
                         blendedCells.forEach(function(blended){
                             TweenMax.to(blended, 0.5,{
+                                delay: 0.1,
                                 y : blended.y-diff,
                                 onComplete: function(b){
                                     blendedCells.remove(b,true);
@@ -207,7 +213,8 @@ function checkSolution(){
                                 onCompleteParams: [blended]
                             });
                         },this,false);
-                        TweenMax.to(marker, 0.5,{                            
+                        TweenMax.to(marker, 0.5,{   
+                            delay: 0.1,
                             y : 40         
                         });
                     }, this);
