@@ -7,7 +7,6 @@ var levelState = {
         game.load.image("backgroundBrown", "assets/background-brown.png", 75, 75);
         game.load.image("decorationTube", "assets/tube-end-decoration.png", 7, 100);
         game.load.spritesheet("path", "assets/path-parts.png", 150, 150);
-        game.load.spritesheet("blended-purple", "assets/test-morph.png", 110, 150);
         game.load.spritesheet("marker", "assets/marker.png", 150, 20);
         game.load.spritesheet("tubedPath", "assets/path-tube.png", 150, 150);
         game.load.spritesheet("chromiumFrame", "assets/chromium-frame.png", 482, 595);
@@ -199,7 +198,7 @@ function checkSolution(){
                         var blended = blendedCells.create(cell.x,cell.y,blendFile);                        
                         blended.scale.set(scale);
                         blended.anchor.set(0.5);
-                        blended.animations.add('blend',[0,1,2,3,4,5,6,7,8,9,10], 45, false);
+                        blended.animations.add('blend',[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15], 60, false);
                         anim = blended.animations.play("blend");
                     }
                     cells.removeBetween(0,solution,true);
