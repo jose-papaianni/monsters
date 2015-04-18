@@ -40,13 +40,25 @@ var cellTypes = [
         name:'redCell',
         filename: "assets/redcell.png",
         w: 110,
-        h: 110
+        h: 110,
+        blend: { 
+            name: 'redCell-blend',
+            filename: "assets/redcell-blend.png",
+            w: 110,
+            h: 150
+            }
     },
     {
         name:'purpleCell',
         filename: "assets/purplecell.png",
         w: 110,
-        h: 110
+        h: 110,
+        blend: { 
+            name: 'purpleCell-blend',
+            filename: "assets/purple-blend.png",
+            w: 110,
+            h: 150
+            }
     } /*,
     {
         name:'blueCell',

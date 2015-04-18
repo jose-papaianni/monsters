@@ -8,12 +8,13 @@ var levelState = {
         game.load.image("decorationTube", "assets/tube-end-decoration.png", 7, 100);
         game.load.spritesheet("path", "assets/path-parts.png", 150, 150);
         game.load.spritesheet("blended-purple", "assets/test-morph.png", 110, 150);
-        game.load.spritesheet("marker", "assets/marker.png", 150, 40);
+        game.load.spritesheet("marker", "assets/marker.png", 150, 20);
         game.load.spritesheet("tubedPath", "assets/path-tube.png", 150, 150);
         game.load.spritesheet("chromiumFrame", "assets/chromium-frame.png", 482, 595);
         game.load.spritesheet("cellInjector", "assets/injector.png", 123, 594);
         for (var i = 0; i<cellTypes.length; i++){
             game.load.spritesheet(cellTypes[i].name, cellTypes[i].filename , cellTypes[i].w,cellTypes[i].h);
+            game.load.spritesheet(cellTypes[i].blend.name, cellTypes[i].blend.filename , cellTypes[i].blend.w,cellTypes[i].blend.h);
         }
 
     }, 
@@ -193,11 +194,12 @@ function checkSolution(){
                 onComplete: function(){
                     var anim;
                     for (var i=0;i<=solution;i++){
-                        var cell = cells.getChildAt(i);                        
-                        var blended = blendedCells.create(cell.x,cell.y,"blended-purple");                        
+                        var cell = cells.getChildAt(i);
+                        var blendFile = cells.getChildAt(i).type + '-blend';
+                        var blended = blendedCells.create(cell.x,cell.y,blendFile);                        
                         blended.scale.set(scale);
                         blended.anchor.set(0.5);
-                        blended.animations.add('blend',[0,1,2,3,4,5,6,7,8,9,10,11,12,13], 60, false);
+                        blended.animations.add('blend',[0,1,2,3,4,5,6,7,8,9,10], 45, false);
                         anim = blended.animations.play("blend");
                     }
                     cells.removeBetween(0,solution,true);
