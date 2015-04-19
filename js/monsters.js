@@ -11,6 +11,7 @@ var levelState = {
         game.load.spritesheet("tubedPath", "assets/path-tube.png", 150, 150);
         game.load.spritesheet("chromiumFrame", "assets/chromium-frame.png", 482, 595);
         game.load.spritesheet("cellInjector", "assets/injector.png", 123, 594);
+        game.load.spritesheet("matchLight", "assets/match-light.png", 34, 34);
         for (var i = 0; i<cellTypes.length; i++){
             game.load.spritesheet(cellTypes[i].name, cellTypes[i].filename , cellTypes[i].w,cellTypes[i].h);
             game.load.spritesheet(cellTypes[i].blend.name, cellTypes[i].blend.filename , cellTypes[i].blend.w,cellTypes[i].blend.h);
@@ -27,6 +28,7 @@ var levelState = {
                     backgroundGlobal = game.add.image(xPos, j * 150, 'backgroundGlobal');
             }
         }
+        var injectorLight;
         selectedCells = [];
         levelPath = levelsConfig[currentLevel].path;
         coverMatrix = levelsConfig[currentLevel].cover;
@@ -130,6 +132,8 @@ var levelState = {
         marker.scale.set(scale);
         marker.frame = 0;
         var cellInjector = game.add.image(198,-4,'cellInjector');
+        injectorLight = game.add.sprite(239,10,'matchLight');
+        injectorLight.frame = 0;
 
 	}
 }
@@ -166,6 +170,7 @@ function getCellPosition (step){
 
 function addCellMovement(){
     setInterval( function () {
+        injectorLight.frame = 0 ;
         checkSolution();
         cells.forEach(moveCell,this,false);
     }, levelsConfig[currentLevel].speed);
@@ -181,13 +186,15 @@ function checkSolution(){
                 solution++;
             } else {
                 if (solution<2){
+                    injectorLight.frame = 1;
                     solution = 0;
                 }
                 break;
             }
         }
        
-        if (solution>0){            
+        if (solution>0){
+            injectorLight.frame = 2;
             TweenMax.to(marker, 0.5,{
                 y : marker.y + ((solution+1)*cellSize),
                 onComplete: function(){
@@ -250,7 +257,7 @@ function moveCell(cell){
             //onStart: allowSelectCell,
             //onStartParams: [cell, cell.currentStep],
             onComplete: deselectIfCovered,
-            onCompleteParams: [cell],
+            onCompleteParams: [cell]
         });
         cell.currentStep++;
     }
@@ -292,7 +299,8 @@ function swapCellPosition (cell){
             var targetS = targetCell.currentStep;
 			cellDistance = getCellDistance (currentCell,targetCell);
 			if (cellDistance.offsetX <= cellSize && cellDistance.offsetY <= cellSize !=
-				(cellDistance.offsetX == cellSize && cellDistance.offsetY == cellSize) && (!isCovered(currentS) && !isCovered(targetS))){
+				(cellDistance.offsetX == cellSize && cellDistance.offsetY == cellSize)
+                && (!isCovered(currentS) && !isCovered(targetS))){
                     cells.swapChildren(currentCell,targetCell);
                     TweenMax.to(currentCell, 0.25,{
                                 x: getCellPosition(targetS).positionX,
@@ -311,20 +319,21 @@ function swapCellPosition (cell){
                 
 			} else {
                 currentCell.frame = 0;
-                var currentCellPosX = getCellPosition(currentS).positionX 
-                currentCell.x = currentCellPosX -3;
 				selectedCells = []
-                TweenMax.to (currentCell, 0.05, {
-                    x: currentCellPosX + 6,
-                    yoyo: true,
-                    repeat: 10,
-                    onComplete: function () { currentCell.x = currentCellPosX }
-                })
-            }
+                while (!TweenMax.isTweening(currentCell)){
+                    var currentCellPosX = getCellPosition(currentS).positionX 
+                    currentCell.x = currentCellPosX -3;
+                    TweenMax.to (currentCell, 0.05, {
+                        x: currentCellPosX + 6,
+                        yoyo: true,
+                        repeat: 10,
+                        onComplete: function () { currentCell.x = currentCellPosX }
+                    })
+                }
+            } 
 			addCellEffects(cell);
             cell.frame = 0;
-			selectedCells = []
-            
+			selectedCells = [];
 		} 
 	}
 }
