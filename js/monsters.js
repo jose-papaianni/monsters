@@ -6,6 +6,9 @@ var levelState = {
         game.load.image("backgroundGlobal", "assets/back-pattern.jpg", 150, 150);
         game.load.image("backgroundBrown", "assets/background-brown.png", 75, 75);
         game.load.image("decorationTube", "assets/tube-end-decoration.png", 7, 100);
+        game.load.image("vBag", "assets/puch.png", 341, 546);
+        game.load.image("monster", "assets/monster-lever.png", 289, 288);
+        game.load.image("fluid", "assets/bag-liquid.png", 118, 188);
         game.load.spritesheet("path", "assets/path-parts.png", 150, 150);
         game.load.spritesheet("marker", "assets/marker.png", 150, 20);
         game.load.spritesheet("tubedPath", "assets/path-tube.png", 150, 150);
@@ -44,8 +47,7 @@ var levelState = {
         blendedCells.mask = injectorMask;
         cover = game.add.group();
         
-        this.initPath();        
-        this.initCellGenerator();        
+        this.initPath();              
 		this.initInjector();
         addCellMovement ();
         
@@ -54,16 +56,27 @@ var levelState = {
     initGameDecoration: function(){
         for (var i = 0; i < 6; i++){
             var xPos = i * 75 + startPosition.x - 22 ; 
-        var backgroundBrown = game.add.image(xPos, startPosition.y, 'backgroundBrown');
-		backgroundBrown.anchor.set(0.5,0.5);
-            for (var j = 0; j < 7; j++){
-				var yPos = j * 75 + startPosition.y - 14;
-                var backgroundBrown = game.add.image(xPos, yPos, 'backgroundBrown');
-				backgroundBrown.anchor.set(0.5,0.5);
-            }
+			var backgroundBrown = game.add.image(xPos, startPosition.y, 'backgroundBrown');
+			backgroundBrown.anchor.set(0.5,0.5);
+				for (var j = 0; j < 7; j++){
+					var yPos = j * 75 + startPosition.y - 14;
+					var backgroundBrown = game.add.image(xPos, yPos, 'backgroundBrown');
+					backgroundBrown.anchor.set(0.5,0.5);
+				}
         }
 		var chromiumFrame = game.add.image (startPosition.x-55,startPosition.y-70,'chromiumFrame');
 		chromiumFrame.scale.set(0.95,0.95);
+		bagMask = game.add.graphics(63,55);
+        bagMask.beginFill(0xffffff);
+        bagMask.drawRect(0,180,180,-190);
+		var vBagFluid = game.add.image (63,55,'fluid');
+		vBagFluid.scale.set(0.8);
+	 	vBagFluid.mask = bagMask;
+		var vBag = game.add.image (-100,0,'vBag');
+		vBag.scale.set(0.8);		
+		var monster = game.add.image(10, 370, 'monster');
+		monster.scale.set(0.8)
+		//vBag.scale.set(0.8);
 	},
 	
     initPath: function(){
@@ -106,30 +119,6 @@ var levelState = {
                 lastDir = nextDir;
             }
 		}
-    },
-	
-    initCellGenerator: function(){
-        setInterval ( function () {
-            var childrenInFirstCell = cells.filter(function(cell, index, children) {
-                return cell.currentStep === 0 ? true : false;
-            }, true);
-            var randomizerGenerator = Math.floor((Math.random() * 4));
-            if (childrenInFirstCell.total === 0 && randomizerGenerator <= 1) {
-                var randomCell = cellTypes[Math.floor((Math.random() * cellTypes.length))];
-                var cell = cells.create(startPosition.x,startPosition.y, randomCell.name);
-                cell.type = randomCell.name;
-                cell.anchor.set (0.5,0.5);
-                cell.scale.set(scale);
-                cell.currentStep = 0;
-                cell.inputEnabled = true;
-                cell.events.onInputDown.add(swapCellPosition,this);
-                //cell.name = 'cellId-' + cellId.toString();
-                //addCellMovement (cell);
-                addCellEffects (cell)
-                //cellId++;
-            }
-            
-        }, (levelsConfig[currentLevel].speed))
     },
 	
 	initInjector: function(){
@@ -178,10 +167,28 @@ function addCellMovement(){
         injectorLight.frame = 0 ;
         checkSolution();
         cells.forEach(moveCell,this,false);
-		//Todo: Generar Cell
+		cellGeneration();
     }, levelsConfig[currentLevel].speed);
     
 }
+
+function cellGeneration () {
+	var childrenInFirstCell = cells.filter(function(cell, index, children) {
+		return cell.currentStep === 0 ? true : false;
+	}, true);
+	var randomizerGenerator = Math.floor((Math.random() * 4));
+	if (childrenInFirstCell.total === 0 && randomizerGenerator <= 1) {
+		var randomCell = cellTypes[Math.floor((Math.random() * cellTypes.length))];
+		var cell = cells.create(startPosition.x,startPosition.y, randomCell.name);
+		cell.type = randomCell.name;
+		cell.anchor.set (0.5,0.5);
+		cell.scale.set(scale);
+		cell.currentStep = 0;
+		cell.inputEnabled = true;
+		cell.events.onInputDown.add(swapCellPosition,this);
+		addCellEffects (cell)
+	}
+};
 
 function checkSolution(){
     if (injectorFull()) {
@@ -354,13 +361,21 @@ function getEmptyPosition (step) {
 			var cellDistance = getCellDistance (currentCell,step);
 			if (cellDistance.offsetX <= cellSize && cellDistance.offsetY <= cellSize !=
 				(cellDistance.offsetX == cellSize && cellDistance.offsetY == cellSize)){
-				var cellFollow = cells.filter(function(cell) {
+				if (currentCell.currentStep === step.pathPosition.index+1 || currentCell.currentStep === step.pathPosition.index -1){
+					var cellFollow = cells.filter(function(cell) {
 					return cell.currentStep > step.pathPosition.index ? true : false;
     			}) 
-				if (cellFollow.total !== 0 && cellFollow.list[cellFollow.total-1]!==currentCell){
+				if (cellFollow.total !== 0 && cellFollow.list[cellFollow.total-1]!==currentCell){					
 				var newIndex = cells.getChildIndex(cellFollow.list[cellFollow.total-1]) + 1;
+					if (cells.getChildIndex(currentCell) < newIndex){
+						newIndex--;
+					}
 				cells.setChildIndex(currentCell, newIndex);
+				} else {
+					cells.setChildIndex(currentCell, 0);
 				}
+				}
+				
                     TweenMax.to(currentCell, 0.25,{
                                 x: step.x,
                                 y: step.y,
