@@ -74,6 +74,7 @@ var levelState = {
                 var y = levelPath[i].y*cellSize+startPosition.y;
                 var step = path.create(x,y,"path");
                 step.scale.set(scale);
+                step.pathPosition = {index:i,x:levelPath[i].x,y:levelPath[i].y};
                 step.anchor.set(0.5,0.5);
                 step.inputEnabled = true;
                 step.events.onInputDown.add(getEmptyPosition, this);
@@ -117,6 +118,7 @@ var levelState = {
                 var randomCell = cellTypes[Math.floor((Math.random() * cellTypes.length))];
                 var cell = cells.create(startPosition.x,startPosition.y, randomCell.name);
                 cell.type = randomCell.name;
+                cell.pathIndex = 0;
                 cell.anchor.set (0.5,0.5);
                 cell.scale.set(scale);
                 cell.currentStep = 0;
@@ -143,10 +145,14 @@ var levelState = {
 }
 function getEmptyPosition (step) {
     var cellOver = cells.filter(function(cell) {
-        return cell.x === step.x && cell.y === step.y ? true : false;
+        return cell.pathIndex = step.pathPosition.index ? true : false;
     })
     if(cellOver.total === 0){
-    console.log(cellOver);
+        if (selectedCells.length === 1){
+            console.log(cellOver);
+        }
+    } else {
+        swapCellPosition (cellOver.first);
     }
 }
 
@@ -276,6 +282,7 @@ function moveCell(cell){
 }
 
 function deselectIfCovered(cell){
+    cell.pathIndex++;
     if (selectedCells.indexOf(cell)!=-1 && isCovered(cell.currentStep)){
         selectedCells = [];
         cell.frame = 0;            
@@ -314,6 +321,9 @@ function swapCellPosition (cell){
 				(cellDistance.offsetX == cellSize && cellDistance.offsetY == cellSize)
                 && (!isCovered(currentS) && !isCovered(targetS))){
                     cells.swapChildren(currentCell,targetCell);
+                    var pathIndex = currentCell.pathIndex;
+                    currentCell.pathIndex = targetCell.pathIndex;
+                    targetCell.pathIndex = pathIndex;
                     TweenMax.to(currentCell, 0.25,{
                                 x: getCellPosition(targetS).positionX,
                                 y: getCellPosition(targetS).positionY,
