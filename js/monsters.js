@@ -191,6 +191,7 @@ function addCellMovement(){
         injectorLight.frame = 0 ;
         checkSolution();
         cells.forEach(moveCell,this,false);
+		//Todo: Generar Cell
     }, levelsConfig[currentLevel].speed);
     
 }
