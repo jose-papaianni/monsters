@@ -75,6 +75,8 @@ var levelState = {
                 var step = path.create(x,y,"path");
                 step.scale.set(scale);
                 step.anchor.set(0.5,0.5);
+                step.inputEnabled = true;
+                step.events.onInputDown.add(getEmptyPosition, this);
                 var nextDir = getDirection(levelPath[i],i==levelPath.length-1 ? {x:-1,y:5} : levelPath[i+1]);
                 if (lastDir === nextDir){
                     step.frame = (lastDir === 0 || lastDir === 2) ? 1 : 0;
@@ -88,6 +90,7 @@ var levelState = {
                     step.frame = 5;
                 }
                 if (!levelPath[i].allowTarget){
+                    step.inputEnabled = false;
                     var tubedPath = cover.create(x,y,"tubedPath");
                     tubedPath.scale.set(scale);
                     tubedPath.anchor.set(0.5,0.5);
@@ -109,7 +112,8 @@ var levelState = {
             var childrenInFirstCell = cells.filter(function(cell, index, children) {
                 return cell.currentStep === 0 ? true : false;
             }, true);
-            if (childrenInFirstCell.total === 0) {
+            var randomizerGenerator = Math.floor((Math.random() * 4));
+            if (childrenInFirstCell.total === 0 && randomizerGenerator <= 2) {
                 var randomCell = cellTypes[Math.floor((Math.random() * cellTypes.length))];
                 var cell = cells.create(startPosition.x,startPosition.y, randomCell.name);
                 cell.type = randomCell.name;
@@ -136,6 +140,14 @@ var levelState = {
         injectorLight.frame = 0;
 
 	}
+}
+function getEmptyPosition (step) {
+    var cellOver = cells.filter(function(cell) {
+        return cell.x === step.x && cell.y === step.y ? true : false;
+    })
+    if(cellOver.total === 0){
+    console.log(cellOver);
+    }
 }
 
 function setTubeEnd(x,y,direction){
@@ -274,20 +286,20 @@ function isCovered(step){
     return levelPath[step].injector || levelPath[step].allowTarget != true;
 }
 
-function allowSelectCell(cell, step){
-	if (!levelPath[step].injector && !isCovered(step)){
-	   cell.inputEnabled = true;
-	} else {
-	   cell.inputEnabled = false;
-	}
-};
+//function allowSelectCell(cell, step){
+//	if (!levelPath[step].injector && !isCovered(step)){
+//	   cell.inputEnabled = true;
+//	} else {
+//	   cell.inputEnabled = false;
+//	}
+//};
 
 function getCellDistance(selection,target){
 	return {offsetX: Math.abs(((selection.x-target.x))), offsetY: Math.abs(((selection.y-target.y)))}
 };
 
 function swapCellPosition (cell){
-	if (!isCovered(cell.currentStep) && selectedCells.length <2){
+	if (!isCovered(cell.currentStep) && selectedCells.length < 2){
         clearInterval(cell.reflexInterval);
 		selectedCells.push (cell);
         cell.frame = 9;
