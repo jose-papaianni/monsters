@@ -261,18 +261,26 @@ function injectorFull(){
 function moveCell(cell){
     var cellIndex = cells.getChildIndex(cell);
     var prevCell = cellIndex>0 ? cells.getChildAt(cellIndex-1) : null;
-    if (cell.currentStep < (levelPath.length-1) 
-        && (!prevCell || (prevCell.currentStep-cell.currentStep>1))) {
-        TweenMax.to(cell, 0.5,{
-            x: getCellPosition(cell.currentStep+1).positionX,
-            y: getCellPosition(cell.currentStep+1).positionY,
+    if ((!prevCell || (prevCell.currentStep-cell.currentStep>1)) && (cell.currentStep < levelPath.length-1 || injectorFull())) {
+		var nextStep;
+        if (cell.currentStep === levelPath.length-1){
+			nextStep = 0;	
+			cells.bringToTop(cell);
+		} else {
+			nextStep = cell.currentStep +1
+		}
+		nextPos = getCellPosition(nextStep);
+		TweenMax.to(cell, 0.5,{
+            x: nextPos.positionX,
+            y: nextPos.positionY,
             ease: Back.easeInOut.config(1.2),
             //onStart: allowSelectCell,
             //onStartParams: [cell, cell.currentStep],
             onComplete: deselectIfCovered,
             onCompleteParams: [cell]
         });
-        cell.currentStep++;
+		
+        cell.currentStep = nextStep;
     }
 }
 
