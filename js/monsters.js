@@ -314,15 +314,17 @@ function swapCellPosition (cell){
 				(cellDistance.offsetX == cellSize && cellDistance.offsetY == cellSize)
                 && (!isCovered(currentS) && !isCovered(targetS))){
                     cells.swapChildren(currentCell,targetCell);
+					var targetPos = getCellPosition(targetS);
+					var currentPos =  getCellPosition(currentS);
                     TweenMax.to(currentCell, 0.25,{
-                                x: getCellPosition(targetS).positionX,
-                                y: getCellPosition(targetS).positionY,
+                                x: targetPos.positionX,
+                                y: targetPos.positionY,
                                 ease: Power3.easeOut,
                                 onComplete: currentCell.frame = 0
                             });
                     TweenMax.to(targetCell, 0.25,{
-                                x: getCellPosition(currentS).positionX,
-                                y: getCellPosition(currentS).positionY,
+                                x: currentPos.positionX,
+                                y: currentPos.positionY,
                                 ease: Power3.easeOut,
                                 onComplete: targetCell.frame = 0
                             });
@@ -352,7 +354,7 @@ function swapCellPosition (cell){
 
 function getEmptyPosition (step) {
     var cellOver = cells.filter(function(cell) {
-        return cell.currentStep === step.pathPosition.index ? true : false;
+        return cell.currentStep === step.pathPosition.index;
     });
 	
     if(cellOver.total === 0){
@@ -361,27 +363,28 @@ function getEmptyPosition (step) {
 			var cellDistance = getCellDistance (currentCell,step);
 			if (cellDistance.offsetX <= cellSize && cellDistance.offsetY <= cellSize !=
 				(cellDistance.offsetX == cellSize && cellDistance.offsetY == cellSize)){
-				if (currentCell.currentStep === step.pathPosition.index+1 || currentCell.currentStep === step.pathPosition.index -1){
-					var cellFollow = cells.filter(function(cell) {
-					return cell.currentStep > step.pathPosition.index ? true : false;
-    			}) 
-				if (cellFollow.total !== 0 && cellFollow.list[cellFollow.total-1]!==currentCell){					
-				var newIndex = cells.getChildIndex(cellFollow.list[cellFollow.total-1]) + 1;
-					if (cells.getChildIndex(currentCell) < newIndex){
-						newIndex--;
+				if (Math.abs(currentCell.currentStep - step.pathPosition.index) != 1) {
+					
+					var backwardJump = currentCell.currentStep > step.pathPosition.index;
+					var min = Math.min(currentCell.currentStep,step.pathPosition.index);
+					var max = Math.max(currentCell.currentStep,step.pathPosition.index);
+					var cellsBetween = cells.filter(function(cell) {
+						return cell.currentStep > min && cell.currentStep < max;
+					});
+					var currentIndex = cells.getChildIndex(currentCell);
+					if (backwardJump) {
+						currentIndex += cellsBetween.total;	
+					} else {
+						currentIndex -= cellsBetween.total;	
 					}
-				cells.setChildIndex(currentCell, newIndex);
-				} else {
-					cells.setChildIndex(currentCell, 0);
-				}
-				}
-				
-                    TweenMax.to(currentCell, 0.25,{
-                                x: step.x,
-                                y: step.y,
-                                ease: Power3.easeOut,
-                                onComplete: currentCell.frame = 0
-                            });
+					cells.setChildIndex(currentCell, currentIndex);
+				};
+				TweenMax.to(currentCell, 0.25,{
+							x: step.x,
+							y: step.y,
+							ease: Power3.easeOut,
+							onComplete: currentCell.frame = 0
+							});
 				currentCell.currentStep = step.pathPosition.index;
 				
         	} else {
