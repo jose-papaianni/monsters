@@ -359,10 +359,8 @@ function getEmptyPosition (step) {
     			}) 
 				if (cellFollow.total !== 0 && cellFollow.list[cellFollow.total-1]!==currentCell){
 				var newIndex = cells.getChildIndex(cellFollow.list[cellFollow.total-1]) + 1;
-				console.log(newIndex);
 				cells.setChildIndex(currentCell, newIndex);
 				}
-					console.log(step.pathPosition.index);
                     TweenMax.to(currentCell, 0.25,{
                                 x: step.x,
                                 y: step.y,
@@ -371,8 +369,18 @@ function getEmptyPosition (step) {
                             });
 				currentCell.currentStep = step.pathPosition.index;
 				
-        	} else { //wrong move
-			}
+        	} else {
+				while (!TweenMax.isTweening(currentCell)){
+					var currentCellPosX = getCellPosition(currentCell.currentStep).positionX 
+					currentCell.x = currentCellPosX -3;
+					TweenMax.to (currentCell, 0.05, {
+					x: currentCellPosX + 6,
+					yoyo: true,
+					repeat: 10,
+					onComplete: function () { currentCell.x = currentCellPosX }
+					})
+				}
+			};
 		} 
 	} else {
         swapCellPosition (cellOver.first);
@@ -381,7 +389,6 @@ function getEmptyPosition (step) {
 		selectedCells[0].frame = 0;   
 		selectedCells = []
 	}
-
 }
 
 	
