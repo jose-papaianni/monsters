@@ -114,11 +114,10 @@ var levelState = {
                 return cell.currentStep === 0 ? true : false;
             }, true);
             var randomizerGenerator = Math.floor((Math.random() * 4));
-            if (childrenInFirstCell.total === 0 && randomizerGenerator <= 2) {
+            if (childrenInFirstCell.total === 0 && randomizerGenerator <= 1) {
                 var randomCell = cellTypes[Math.floor((Math.random() * cellTypes.length))];
                 var cell = cells.create(startPosition.x,startPosition.y, randomCell.name);
                 cell.type = randomCell.name;
-                cell.pathIndex = 0;
                 cell.anchor.set (0.5,0.5);
                 cell.scale.set(scale);
                 cell.currentStep = 0;
@@ -142,18 +141,6 @@ var levelState = {
         injectorLight.frame = 0;
 
 	}
-}
-function getEmptyPosition (step) {
-    var cellOver = cells.filter(function(cell) {
-        return cell.pathIndex = step.pathPosition.index ? true : false;
-    })
-    if(cellOver.total === 0){
-        if (selectedCells.length === 1){
-            console.log(cellOver);
-        }
-    } else {
-        swapCellPosition (cellOver.first);
-    }
 }
 
 function setTubeEnd(x,y,direction){
@@ -283,7 +270,6 @@ function moveCell(cell){
 }
 
 function deselectIfCovered(cell){
-    cell.pathIndex++;
     if (selectedCells.indexOf(cell)!=-1 && isCovered(cell.currentStep)){
         selectedCells = [];
         cell.frame = 0;            
@@ -313,18 +299,14 @@ function swapCellPosition (cell){
         cell.frame = 9;
         if (selectedCells.length === 2 ){
 			var currentCell = selectedCells[0];
-			var targetCell = selectedCells[1];
-            
+			var targetCell = selectedCells[1];        
             var currentS = currentCell.currentStep;
             var targetS = targetCell.currentStep;
-			cellDistance = getCellDistance (currentCell,targetCell);
+			var cellDistance = getCellDistance (currentCell,targetCell);
 			if (cellDistance.offsetX <= cellSize && cellDistance.offsetY <= cellSize !=
 				(cellDistance.offsetX == cellSize && cellDistance.offsetY == cellSize)
                 && (!isCovered(currentS) && !isCovered(targetS))){
                     cells.swapChildren(currentCell,targetCell);
-                    var pathIndex = currentCell.pathIndex;
-                    currentCell.pathIndex = targetCell.pathIndex;
-                    targetCell.pathIndex = pathIndex;
                     TweenMax.to(currentCell, 0.25,{
                                 x: getCellPosition(targetS).positionX,
                                 y: getCellPosition(targetS).positionY,
@@ -360,6 +342,48 @@ function swapCellPosition (cell){
 		} 
 	}
 }
+
+function getEmptyPosition (step) {
+    var cellOver = cells.filter(function(cell) {
+        return cell.currentStep === step.pathPosition.index ? true : false;
+    });
+	
+    if(cellOver.total === 0){
+        if (selectedCells.length === 1) {
+			var currentCell = selectedCells[0];
+			var cellDistance = getCellDistance (currentCell,step);
+			if (cellDistance.offsetX <= cellSize && cellDistance.offsetY <= cellSize !=
+				(cellDistance.offsetX == cellSize && cellDistance.offsetY == cellSize)){
+				var cellFollow = cells.filter(function(cell) {
+					return cell.currentStep > step.pathPosition.index ? true : false;
+    			}) 
+				if (cellFollow.total !== 0 && cellFollow.list[cellFollow.total-1]!==currentCell){
+				var newIndex = cells.getChildIndex(cellFollow.list[cellFollow.total-1]) + 1;
+				console.log(newIndex);
+				cells.setChildIndex(currentCell, newIndex);
+				}
+					console.log(step.pathPosition.index);
+                    TweenMax.to(currentCell, 0.25,{
+                                x: step.x,
+                                y: step.y,
+                                ease: Power3.easeOut,
+                                onComplete: currentCell.frame = 0
+                            });
+				currentCell.currentStep = step.pathPosition.index;
+				
+        	} else { //wrong move
+			}
+		} 
+	} else {
+        swapCellPosition (cellOver.first);
+    }
+	if (selectedCells.length > 0) {    
+		selectedCells[0].frame = 0;   
+		selectedCells = []
+	}
+
+}
+
 	
 
 //Effects
