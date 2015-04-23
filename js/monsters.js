@@ -1,5 +1,7 @@
 var scale = 0.55;
 var cellSize = 150*scale;
+var swapSpeed = 0.25;
+var advanceSpeed = 0.5;
 
 var levelState = {
     preload: function () {
@@ -33,6 +35,7 @@ var levelState = {
         }
         var injectorLight;
         selectedCells = [];
+        selectedCell = null;
         levelPath = levelsConfig[currentLevel].path;
         coverMatrix = levelsConfig[currentLevel].cover;
 		startPosition = levelsConfig[currentLevel].startPosition;
@@ -90,7 +93,7 @@ var levelState = {
                 step.pathPosition = {index:i,x:levelPath[i].x,y:levelPath[i].y};
                 step.anchor.set(0.5,0.5);
                 step.inputEnabled = true;
-                step.events.onInputDown.add(getEmptyPosition, this);
+                step.events.onInputDown.add(checkMovementToPath, this);
                 var nextDir = getDirection(levelPath[i],i==levelPath.length-1 ? {x:-1,y:5} : levelPath[i+1]);
                 if (lastDir === nextDir){
                     step.frame = (lastDir === 0 || lastDir === 2) ? 1 : 0;
@@ -146,27 +149,13 @@ function setTubeEnd(x,y,direction){
     
 }
 
-function getDirection(pos1, pos2){
-    if (pos1.y === pos2.y){
-        return (pos1.x < pos2.x ? 0 : 2)
-    } else {
-        return (pos1.y < pos2.y ? 1 : 3)
-    }
-};
-
-function getNextCell(current,next){
-    return {offsetX: ((next.x-current.x)*cellSize), offsetY: ((next.y-current.y)*cellSize)}
-};
-
-function getCellPosition (step){
-	return {positionX : levelPath[step].x * cellSize + startPosition.x, positionY : levelPath[step].y * cellSize + startPosition.y};
-};
-
 function addCellMovement(){
     setInterval( function () {
         injectorLight.frame = 0 ;
         checkSolution();
-        cells.forEach(moveCell,this,false);
+        cells.forEach(function(cell){
+            cell.objectRef.advance();
+        },this,false);
 		cellGeneration();
     }, levelsConfig[currentLevel].speed);
     
@@ -174,19 +163,12 @@ function addCellMovement(){
 
 function cellGeneration () {
 	var childrenInFirstCell = cells.filter(function(cell, index, children) {
-		return cell.currentStep === 0 ? true : false;
+		return cell.objectRef.currentStep === 0 ? true : false;
 	}, true);
 	var randomizerGenerator = Math.floor((Math.random() * 4));
 	if (childrenInFirstCell.total === 0 && randomizerGenerator <= 1) {
 		var randomCell = cellTypes[Math.floor((Math.random() * cellTypes.length))];
-		var cell = cells.create(startPosition.x,startPosition.y, randomCell.name);
-		cell.type = randomCell.name;
-		cell.anchor.set (0.5,0.5);
-		cell.scale.set(scale);
-		cell.currentStep = 0;
-		cell.inputEnabled = true;
-		cell.events.onInputDown.add(swapCellPosition,this);
-		addCellEffects (cell)
+		new Cell(randomCell.name,startPosition);
 	}
 };
 
@@ -209,7 +191,7 @@ function checkSolution(){
         if (solution>0){
             for (var i=0;i<=solution;i++){
                 var cell = cells.getChildAt(i);
-                cell.injected = true;
+                cell.objectRef.injected = true;
             };
             injectorLight.frame = 2;
             TweenMax.to(marker, 0.5,{
@@ -218,7 +200,7 @@ function checkSolution(){
                     var anim;
                     for (var i=0;i<=solution;i++){
                         var cell = cells.getChildAt(i);
-                        cell.injected = true;
+                        cell.objectRef.injected = true;
                         var blendFile = cell.type + '-blend';
                         var blended = blendedCells.create(cell.x,cell.y,blendFile);                        
                         blended.scale.set(scale);
@@ -254,7 +236,7 @@ function checkSolution(){
 function injectorFull(){
     if (cells.total >=6){
         for (var i=0; i<6; i++){
-            if (!levelPath[cells.getChildAt(i).currentStep].injector){
+            if (!levelPath[cells.getChildAt(i).objectRef.currentStep].injector){
                 return false;
             }
         }
@@ -263,175 +245,52 @@ function injectorFull(){
     return false;
 }
 
-function moveCell(cell){
-    var cellIndex = cells.getChildIndex(cell);
-    var prevCell = cellIndex>0 ? cells.getChildAt(cellIndex-1) : null;
-    console.log(cell.injected);
-    if ((!prevCell || (prevCell.currentStep-cell.currentStep>1)) && (cell.currentStep < levelPath.length-1 || injectorFull()) && !cell.injected) {
-		var nextStep;
-        if (cell.currentStep === levelPath.length-1){
-			nextStep = 0;	
-			cells.bringToTop(cell);
-		} else {
-			nextStep = cell.currentStep +1
-		}
-		nextPos = getCellPosition(nextStep);
-		TweenMax.to(cell, 0.5,{
-            x: nextPos.positionX,
-            y: nextPos.positionY,
-            ease: Back.easeInOut.config(1.2),
-            //onStart: allowSelectCell,
-            //onStartParams: [cell, cell.currentStep],
-            onComplete: deselectIfCovered,
-            onCompleteParams: [cell]
-        });
-		
-        cell.currentStep = nextStep;
-    }
-}
-
-function deselectIfCovered(cell){
-    if (selectedCells.indexOf(cell)!=-1 && isCovered(cell.currentStep)){
-        selectedCells = [];
-        cell.frame = 0;            
-    }
-}
-
 function isCovered(step){
     return levelPath[step].injector || levelPath[step].allowTarget != true;
 }
 
-//function allowSelectCell(cell, step){
-//	if (!levelPath[step].injector && !isCovered(step)){
-//	   cell.inputEnabled = true;
-//	} else {
-//	   cell.inputEnabled = false;
-//	}
-//};
-
-function getCellDistance(selection,target){
-	return {offsetX: Math.abs(((selection.x-target.x))), offsetY: Math.abs(((selection.y-target.y)))}
-};
-
-function swapCellPosition (cell){
-	if (!isCovered(cell.currentStep) && selectedCells.length < 2){
-        clearInterval(cell.reflexInterval);
-		selectedCells.push (cell);
-        cell.frame = 9;
-        if (selectedCells.length === 2 ){
-			var currentCell = selectedCells[0];
-			var targetCell = selectedCells[1];        
-            var currentS = currentCell.currentStep;
-            var targetS = targetCell.currentStep;
-			var cellDistance = getCellDistance (currentCell,targetCell);
-			if (cellDistance.offsetX <= cellSize && cellDistance.offsetY <= cellSize !=
-				(cellDistance.offsetX == cellSize && cellDistance.offsetY == cellSize)
-                && (!isCovered(currentS) && !isCovered(targetS))){
-                    cells.swapChildren(currentCell,targetCell);
-					var targetPos = getCellPosition(targetS);
-					var currentPos =  getCellPosition(currentS);
-                    TweenMax.to(currentCell, 0.25,{
-                                x: targetPos.positionX,
-                                y: targetPos.positionY,
-                                ease: Power3.easeOut,
-                                onComplete: currentCell.frame = 0
-                            });
-                    TweenMax.to(targetCell, 0.25,{
-                                x: currentPos.positionX,
-                                y: currentPos.positionY,
-                                ease: Power3.easeOut,
-                                onComplete: targetCell.frame = 0
-                            });
-                    currentCell.currentStep = targetS;
-                    targetCell.currentStep = currentS;
-                
-			} else {
-                currentCell.frame = 0;
-				selectedCells = []
-                while (!TweenMax.isTweening(currentCell)){
-                    var currentCellPosX = getCellPosition(currentS).positionX 
-                    currentCell.x = currentCellPosX -3;
-                    TweenMax.to (currentCell, 0.05, {
-                        x: currentCellPosX + 6,
-                        yoyo: true,
-                        repeat: 10,
-                        onComplete: function () { currentCell.x = currentCellPosX }
-                    })
-                }
-            } 
-			addCellEffects(cell);
-            cell.frame = 0;
-			selectedCells = [];
-		} 
-	}
+function deselectCell(){
+    if (selectedCell){
+        selectedCell.sprite.frame = 0;
+        selectedCell = null;
+    }
 }
 
-function getEmptyPosition (step) {
+function checkMovementToPath (step) {
     var cellOver = cells.filter(function(cell) {
-        return cell.currentStep === step.pathPosition.index;
-    });
-	
+        return cell.objectRef.currentStep === step.pathPosition.index;
+    });	
     if(cellOver.total === 0){
-        if (selectedCells.length === 1) {
-			var currentCell = selectedCells[0];
-			var cellDistance = getCellDistance (currentCell,step);
-			if (cellDistance.offsetX <= cellSize && cellDistance.offsetY <= cellSize !=
-				(cellDistance.offsetX == cellSize && cellDistance.offsetY == cellSize)){
-				if (Math.abs(currentCell.currentStep - step.pathPosition.index) != 1) {
-					
-					var backwardJump = currentCell.currentStep > step.pathPosition.index;
-					var min = Math.min(currentCell.currentStep,step.pathPosition.index);
-					var max = Math.max(currentCell.currentStep,step.pathPosition.index);
+        //position is empty
+        if (selectedCell) {
+			if (isAdjacent(levelPath[selectedCell.currentStep],levelPath[step.pathPosition.index])){
+                //Move to empty position
+				if (Math.abs(selectedCell.currentStep - step.pathPosition.index) != 1) {
+					var backwardJump = selectedCell.currentStep > step.pathPosition.index;
+					var min = Math.min(selectedCell.currentStep,step.pathPosition.index);
+					var max = Math.max(selectedCell.currentStep,step.pathPosition.index);
 					var cellsBetween = cells.filter(function(cell) {
-						return cell.currentStep > min && cell.currentStep < max;
+						return cell.objectRef.currentStep > min && cell.objectRef.currentStep < max;
 					});
-					var currentIndex = cells.getChildIndex(currentCell);
+					var currentIndex = cells.getChildIndex(selectedCell.sprite);
 					if (backwardJump) {
 						currentIndex += cellsBetween.total;	
 					} else {
 						currentIndex -= cellsBetween.total;	
 					}
-					cells.setChildIndex(currentCell, currentIndex);
+					cells.setChildIndex(selectedCell.sprite, currentIndex);
 				};
-				TweenMax.to(currentCell, 0.25,{
-							x: step.x,
-							y: step.y,
-							ease: Power3.easeOut,
-							onComplete: currentCell.frame = 0
-							});
-				currentCell.currentStep = step.pathPosition.index;
-				
+                selectedCell.moveToPathPosition(step.pathPosition.index);				
         	} else {
-				while (!TweenMax.isTweening(currentCell)){
-					var currentCellPosX = getCellPosition(currentCell.currentStep).positionX 
-					currentCell.x = currentCellPosX -3;
-					TweenMax.to (currentCell, 0.05, {
-					x: currentCellPosX + 6,
-					yoyo: true,
-					repeat: 10,
-					onComplete: function () { currentCell.x = currentCellPosX }
-					})
-				}
-			};
+                //Movement is not valid
+				selectedCell.shake();
+			}
+            deselectCell();
 		} 
 	} else {
-        swapCellPosition (cellOver.first);
+        //selects or swaps
+        cellOver.first.objectRef.swapPosition();
     }
-	if (selectedCells.length > 0) {    
-		selectedCells[0].frame = 0;   
-		selectedCells = []
-	}
 }
-
-	
-
-//Effects
-function addCellEffects (cell){
-	cell.animations.add('reflex',[0,1,2,3,4,5,6,7,8,9,10], 60, false);
-	cell.reflexInterval = setInterval(function(){
-			cell.animations.play('reflex', 45, false);
-	},2500);
-};
-
 
 var game = new Phaser.Game(800, 600, Phaser.CANVAS, 'phaser-example', levelState);
