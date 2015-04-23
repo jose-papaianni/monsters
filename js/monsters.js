@@ -207,6 +207,10 @@ function checkSolution(){
         }
        
         if (solution>0){
+            for (var i=0;i<=solution;i++){
+                var cell = cells.getChildAt(i);
+                cell.injected = true;
+            };
             injectorLight.frame = 2;
             TweenMax.to(marker, 0.5,{
                 y : marker.y + ((solution+1)*cellSize),
@@ -214,7 +218,8 @@ function checkSolution(){
                     var anim;
                     for (var i=0;i<=solution;i++){
                         var cell = cells.getChildAt(i);
-                        var blendFile = cells.getChildAt(i).type + '-blend';
+                        cell.injected = true;
+                        var blendFile = cell.type + '-blend';
                         var blended = blendedCells.create(cell.x,cell.y,blendFile);                        
                         blended.scale.set(scale);
                         blended.anchor.set(0.5);
@@ -261,7 +266,8 @@ function injectorFull(){
 function moveCell(cell){
     var cellIndex = cells.getChildIndex(cell);
     var prevCell = cellIndex>0 ? cells.getChildAt(cellIndex-1) : null;
-    if ((!prevCell || (prevCell.currentStep-cell.currentStep>1)) && (cell.currentStep < levelPath.length-1 || injectorFull())) {
+    console.log(cell.injected);
+    if ((!prevCell || (prevCell.currentStep-cell.currentStep>1)) && (cell.currentStep < levelPath.length-1 || injectorFull()) && !cell.injected) {
 		var nextStep;
         if (cell.currentStep === levelPath.length-1){
 			nextStep = 0;	
