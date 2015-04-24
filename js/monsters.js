@@ -152,7 +152,8 @@ function setTubeEnd(x,y,direction){
 function addCellMovement(){
     setInterval( function () {
         injectorLight.frame = 0 ;
-        checkSolution();
+        checkInjector();
+        console.log("ADVANCING");
         cells.forEach(function(cell){
             cell.objectRef.advance();
         },this,false);
@@ -172,63 +173,88 @@ function cellGeneration () {
 	}
 };
 
-function checkSolution(){
-    if (injectorFull()) {
-        var solution = 0;
-        var type = cells.getChildAt(0).type;
-        for (var i=1; i<6; i++){
-            if (cells.getChildAt(i).type === type){
-                solution++;
-            } else {
-                if (solution<2){
-                    injectorLight.frame = 1;
-                    solution = 0;
-                }
-                break;
+function checkSolution() {
+    solution = [cells.getChildAt(0).objectRef];
+    var type = solution[0].type;
+    for (var i=1; i<6; i++){
+        if (cells.getChildAt(i).objectRef.type === type){
+            solution.push(cells.getChildAt(i).objectRef);
+        } else {
+            if (solution.length<3){
+                injectorLight.frame = 1;
+                solution = [];
             }
+            break;
         }
-       
-        if (solution>0){
-            for (var i=0;i<=solution;i++){
-                var cell = cells.getChildAt(i);
-                cell.objectRef.injected = true;
+    }
+    return solution;
+};
+
+function checkInjector(){
+    if (cells.length > 0 && cells.getChildAt(0).objectRef.currentStep === levelPath.length-1){
+        cells.getChildAt(0).objectRef.injectorHead = true;
+    }
+    if (injectorFull()) {
+        var solution = checkSolution();
+        if (solution.length>0){
+            for (var i=0;i<solution.length;i++){
+                solution[i].injected = true;
+                var blendFile = solution[i].type + '-blend';
+                var blended = blendedCells.create(solution[i].sprite.x,solution[i].sprite.y,blendFile);
+                blended.scale.set(scale);
+                blended.anchor.set(0.5);
+                blended.animations.add('blend',[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15], 60, false);
             };
-            injectorLight.frame = 2;
-            TweenMax.to(marker, 0.5,{
-                y : marker.y + ((solution+1)*cellSize),
-                onComplete: function(){
-                    var anim;
-                    for (var i=0;i<=solution;i++){
-                        var cell = cells.getChildAt(i);
-                        cell.objectRef.injected = true;
-                        var blendFile = cell.type + '-blend';
-                        var blended = blendedCells.create(cell.x,cell.y,blendFile);                        
-                        blended.scale.set(scale);
-                        blended.anchor.set(0.5);
-                        blended.animations.add('blend',[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15], 60, false);
-                        anim = blended.animations.play("blend");
+
+            var lowerMarker = function(){
+                var deferred = Q.defer();
+                injectorLight.frame = 2;
+                TweenMax.to(marker, 0.5, {
+                    y: marker.y + ((solution.length) * cellSize),
+                    onComplete: function(){
+                        deferred.resolve();
                     }
-                    cells.removeBetween(0,solution,true);
-                    anim.onComplete.add(function(){
-                        var diff = marker.y - 40;
-                        blendedCells.forEach(function(blended){
-                            TweenMax.to(blended, 0.5,{
-                                delay: 0.1,
-                                y : blended.y-diff,
-                                onComplete: function(b){
-                                    blendedCells.remove(b,true);
-                                },
-                                onCompleteParams: [blended]
-                            });
-                        },this,false);
-                        TweenMax.to(marker, 0.5,{   
-                            delay: 0.1,
-                            y : 40         
-                        });
-                    }, this);
-                    
-                }
-            });
+                });
+                return deferred.promise;
+            }
+
+            var blendCells = function(){
+                var deferred = Q.defer();
+                var anim;
+                blendedCells.forEach(function (blended) {
+                    anim = blended.animations.play("blend");
+                }, this, false);
+                cells.removeBetween(0,solution.length-1,true);
+                anim.onComplete.add(function(){
+                    deferred.resolve();
+                });
+                return deferred.promise;
+            }
+
+            var inject = function(){
+                var deferred = Q.defer();
+                var diff = marker.y - 40;
+                blendedCells.forEach(function(blended){
+                    TweenMax.to(blended, 0.5,{
+                        delay: 0.1,
+                        y : blended.y-diff,
+                        onComplete: function(b){
+                            blendedCells.remove(b,true);
+                        },
+                        onCompleteParams: [blended]
+                    });
+                },this,false);
+                TweenMax.to(marker, 0.5,{
+                    delay: 0.1,
+                    y : 40,
+                    onComplete: function(){
+                        deferred.resolve();
+                    }
+                });
+                return deferred.promise;
+            }
+
+            lowerMarker().then(blendCells).then(inject);
         }        
     }
 }

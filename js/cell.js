@@ -13,7 +13,7 @@ function Cell(type, position){
     
     this.shake = function(){
         while (!TweenMax.isTweening(this.sprite)){
-            var currentPosition = getPathPosition(this.currentStep);
+            var currentPosition = getStepPosition(this.currentStep);
             this.sprite.x = currentPosition.x -3;
             TweenMax.to (this.sprite, 0.05, {
                 x: currentPosition.x + 6,
@@ -52,26 +52,27 @@ function Cell(type, position){
     }
     
     this.advance = function(){
-        var cellIndex = this.cellIndex();
-        //next cell is first in the group, if index is 0, this cell is the first one
-        var nextCell = cellIndex>0 ? cells.getChildAt(cellIndex-1) : null;
-        if ((!nextCell || (nextCell.objectRef.currentStep-this.currentStep)>1) && (this.currentStep < levelPath.length-1 || injectorFull()) && !this.injected) {
-            var nextStep;
-            if (this.currentStep === levelPath.length-1){
-                nextStep = 0;	
-                cells.bringToTop(this.sprite);
-            } else {
-                nextStep = this.currentStep +1
-            }
-            var nextPos = getStepPosition(nextStep);
-            TweenMax.to(this.sprite, advanceSpeed,{
-                x: nextPos.x,
-                y: nextPos.y,
-                ease: Back.easeInOut.config(1.2),
-                onComplete: this.deselectIfCovered
+        console.log("advancing cell in "+this.currentStep);
+        if (!this.injected && (!this.injectorHead || injectorFull())) {
+            this.injectorHead = false;
+            var nextStep = (this.currentStep === levelPath.length-1) ? 0 : this.currentStep +1;
+            var cellInNextStep = cells.filter(function(cell) {
+                return cell.objectRef.currentStep === nextStep;
             });
+            if (cellInNextStep.total === 0) {
+                if (nextStep === 0){
+                    cells.bringToTop(this.sprite);
+                }
+                var nextPos = getStepPosition(nextStep);
+                TweenMax.to(this.sprite, advanceSpeed,{
+                    x: nextPos.x,
+                    y: nextPos.y,
+                    ease: Back.easeInOut.config(1.2),
+                    onComplete: this.deselectIfCovered
+                });
 
-            this.currentStep = nextStep;
+                this.currentStep = nextStep;
+            }
         }
     }
     
@@ -98,7 +99,8 @@ function Cell(type, position){
     
     //initialization
     this.sprite = cells.create(position.x,position.y, type);
-    this.sprite.type = type;
+    this.type = type;
+    this.injectorHead = false;
     this.sprite.anchor.set (0.5,0.5);
     this.sprite.scale.set(scale);
     this.currentStep = 0;
