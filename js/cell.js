@@ -65,26 +65,24 @@ function Cell(type, position){
                     x: nextPos.x,
                     y: nextPos.y,
                     ease: Back.easeInOut.config(1.2),
-                    onComplete: callback
+                    onComplete: this.checkAfterMove,
+                    onCompleteParams: [this,nextStep]
                 });
-                function callback () {
-                    this.deselectIfCovered
-                    if (nextStep === 0){
-                        cells.bringToTop(cells.getChildAt(0));
-                    }
-                }
-
                 this.currentStep = nextStep;
             }
         }
     }
     
-    this.deselectIfCovered = function(){
-        if (selectedCells[0] == this && isCovered(this.currentStep)){
-            this.frame = 0;
+    this.checkAfterMove = function (cell,nextStep){
+        if (nextStep === 0){
+            cells.bringToTop(cells.getChildAt(0));
+        }  
+        if (selectedCell == cell && isCovered(cell.currentStep)){
+            cell.sprite.frame = 0;
             selectedCell = null;
         }
     }
+    
     
     this.addCellEffects = function(){
         var sprite = this.sprite;
