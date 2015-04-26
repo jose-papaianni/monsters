@@ -36,30 +36,30 @@ var levelsConfig = [
 var currentLevel = 0;
 
 var cellTypes = [    
-//    {
-//        name:'redCell',
-//        filename: "assets/redcell.png",
-//        w: 110,
-//        h: 110,
-//        blend: { 
-//            name: 'redCell-blend',
-//            filename: "assets/redcell-blend.png",
-//            w: 110,
-//            h: 150
-//            }
-//    },
-//    {
-//        name:'purpleCell',
-//        filename: "assets/purplecell.png",
-//        w: 110,
-//        h: 110,
-//        blend: { 
-//            name: 'purpleCell-blend',
-//            filename: "assets/purplecell-blend.png",
-//            w: 110,
-//            h: 150
-//            }
-//    },
+    {
+        name:'redCell',
+        filename: "assets/redcell.png",
+        w: 110,
+        h: 110,
+        blend: { 
+            name: 'redCell-blend',
+            filename: "assets/redcell-blend.png",
+            w: 110,
+            h: 150
+            }
+    },
+    {
+        name:'purpleCell',
+        filename: "assets/purplecell.png",
+        w: 110,
+        h: 110,
+        blend: { 
+            name: 'purpleCell-blend',
+            filename: "assets/purplecell-blend.png",
+            w: 110,
+            h: 150
+            }
+    },
     {
         name:'blueCell',
         filename: "assets/bluecell.png",

@@ -1,3 +1,4 @@
+var debuggerMode = true;
 var scale = 0.55;
 var cellSize = 150*scale;
 var swapSpeed = 0.25;
@@ -49,9 +50,12 @@ var levelState = {
         injectorMask.drawRect(100,0,100,580);
         blendedCells.mask = injectorMask;
         cover = game.add.group();
+        debugGroupPath = game.add.group();
+        debugGroup = game.add.group();
         
         this.initPath();              
 		this.initInjector();
+        debugGridPath();
         addCellMovement ();
         
     },
@@ -153,11 +157,12 @@ function addCellMovement(){
     setInterval( function () {
         injectorLight.frame = 0 ;
         checkInjector();
-        console.log("ADVANCING");
+        //console.log("ADVANCING");
         cells.forEach(function(cell){
             cell.objectRef.advance();
         },this,false);
 		cellGeneration();
+        debugGrid();
     }, levelsConfig[currentLevel].speed);
     
 }
@@ -235,7 +240,7 @@ function checkInjector(){
                 var deferred = Q.defer();
                 var diff = marker.y - 40;
                 blendedCells.forEach(function(blended){
-                    TweenMax.to(blended, 0.5,{
+                    TweenMax.to(blended, 0.4,{
                         delay: 0.1,
                         y : blended.y-diff,
                         onComplete: function(b){
@@ -244,7 +249,7 @@ function checkInjector(){
                         onCompleteParams: [blended]
                     });
                 },this,false);
-                TweenMax.to(marker, 0.5,{
+                TweenMax.to(marker, 0.4,{
                     delay: 0.1,
                     y : 40,
                     onComplete: function(){

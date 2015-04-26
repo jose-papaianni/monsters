@@ -52,7 +52,7 @@ function Cell(type, position){
     }
     
     this.advance = function(){
-        console.log("advancing cell in "+this.currentStep);
+        //console.log("advancing cell in "+this.currentStep);
         if (!this.injected && (!this.injectorHead || injectorFull())) {
             this.injectorHead = false;
             var nextStep = (this.currentStep === levelPath.length-1) ? 0 : this.currentStep +1;
@@ -60,16 +60,19 @@ function Cell(type, position){
                 return cell.objectRef.currentStep === nextStep;
             });
             if (cellInNextStep.total === 0) {
-                if (nextStep === 0){
-                    cells.bringToTop(this.sprite);
-                }
                 var nextPos = getStepPosition(nextStep);
                 TweenMax.to(this.sprite, advanceSpeed,{
                     x: nextPos.x,
                     y: nextPos.y,
                     ease: Back.easeInOut.config(1.2),
-                    onComplete: this.deselectIfCovered
+                    onComplete: callback
                 });
+                function callback () {
+                    this.deselectIfCovered
+                    if (nextStep === 0){
+                        cells.bringToTop(cells.getChildAt(0));
+                    }
+                }
 
                 this.currentStep = nextStep;
             }
@@ -77,7 +80,7 @@ function Cell(type, position){
     }
     
     this.deselectIfCovered = function(){
-        if (selectedCell == this && isCovered(this.currentStep)){
+        if (selectedCells[0] == this && isCovered(this.currentStep)){
             this.frame = 0;
             selectedCell = null;
         }
