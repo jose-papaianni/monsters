@@ -157,14 +157,9 @@ function addCellMovement(){
     setInterval( function () {
         injectorLight.frame = 0 ;
         checkInjector();
-        lastCell = cells.length > 0 ? cells.getChildAt(0) : null;
-        //console.log("ADVANCING");
         cells.forEach(function(cell){
             cell.objectRef.advance();
         },this,false);
-//        if (cells.length > 1 && lastCell.objectRef.currentStep == levelPath.length -1 && !lastCell.objectRef.injected && !lastCell.injectorHead && injectorFull()) {
-//            cells.bringToTop(cells.getChildAt(0));
-//        }
 		cellGeneration();
         debugGrid();
     }, levelsConfig[currentLevel].speed);
