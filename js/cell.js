@@ -56,10 +56,17 @@ function Cell(type, position){
         if (!this.injected && (!this.injectorHead || injectorFull())) {
             this.injectorHead = false;
             var nextStep = (this.currentStep === levelPath.length-1) ? 0 : this.currentStep +1;
-            var cellInNextStep = cells.filter(function(cell) {
-                return cell.objectRef.currentStep === nextStep;
-            });
-            if (cellInNextStep.total === 0) {
+            var move = false;
+            if (nextStep == 0){
+                move = cells.length < levelPath.length;
+            } else {
+                var cellInNextStep = cells.filter(function(cell) {
+                    return cell.objectRef.currentStep === nextStep;
+                });
+                move = cellInNextStep.total === 0;
+            }
+
+            if (move) {
                 var nextPos = getStepPosition(nextStep);
                 TweenMax.to(this.sprite, advanceSpeed,{
                     x: nextPos.x,
