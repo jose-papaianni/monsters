@@ -34,6 +34,14 @@ var levelsConfig = [
 ];
 
 var currentLevel = 0;
+var powerUps = [
+	{
+		name:'bomb',
+		filename: "assets/bomb.png",
+		w: 110,
+		h: 110
+	}
+];
 
 var cellTypes = [    
     {

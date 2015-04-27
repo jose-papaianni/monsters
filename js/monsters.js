@@ -1,3 +1,5 @@
+TweenMax.ticker.useRAF(false);
+TweenMax.lagSmoothing(0);
 var debuggerMode = true;
 var scale = 0.55;
 var cellSize = 150*scale;
@@ -12,6 +14,7 @@ var levelState = {
         game.load.image("vBag", "assets/puch.png", 341, 546);
         game.load.image("monster", "assets/monster-lever.png", 289, 288);
         game.load.image("fluid", "assets/bag-liquid.png", 118, 188);
+        game.load.spritesheet("generatorFrame", "assets/generator-frame.png", 134, 135);
         game.load.spritesheet("path", "assets/path-parts.png", 150, 150);
         game.load.spritesheet("marker", "assets/marker.png", 150, 20);
         game.load.spritesheet("tubedPath", "assets/path-tube.png", 150, 150);
@@ -50,11 +53,15 @@ var levelState = {
         injectorMask.drawRect(100,0,100,580);
         blendedCells.mask = injectorMask;
         cover = game.add.group();
+		generatorFrame = game.add.group();
+
+		
         debugGroupPath = game.add.group();
         debugGroup = game.add.group();
         
         this.initPath();              
 		this.initInjector();
+		this.initGenerator();
         debugGridPath();
         addCellMovement ();
         
@@ -82,8 +89,8 @@ var levelState = {
 		var vBag = game.add.image (-100,0,'vBag');
 		vBag.scale.set(0.8);		
 		var monster = game.add.image(10, 370, 'monster');
-		monster.scale.set(0.8)
-		//vBag.scale.set(0.8);
+		monster.scale.set(0.8);
+		
 	},
 	
     initPath: function(){
@@ -136,6 +143,12 @@ var levelState = {
         injectorLight = game.add.sprite(239,10,'matchLight');
         injectorLight.frame = 0;
 
+	},
+	
+	initGenerator: function () {
+		var generator = generatorFrame.create(startPosition.x +2,startPosition.y+2,'generatorFrame');
+		generator.scale.set (0.85);
+		generator.anchor.set (0.5);
 	}
 }
 
@@ -149,9 +162,8 @@ function setTubeEnd(x,y,direction){
         tubedDecoration.y = tubedDecoration.y + ((cellSize/2)*offsetDir); 
     } else {
         tubedDecoration.x = tubedDecoration.x + ((cellSize/2)*offsetDir); 
-    }
-    
-}
+    }   
+};
 
 function addCellMovement(){
     setInterval( function () {
@@ -162,9 +174,8 @@ function addCellMovement(){
         },this,false);
 		cellGeneration();
         debugGrid();
-    }, levelsConfig[currentLevel].speed);
-    
-}
+    }, levelsConfig[currentLevel].speed); 
+};
 
 function cellGeneration () {
 	var childrenInFirstCell = cells.filter(function(cell, index, children) {
