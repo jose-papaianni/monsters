@@ -8,6 +8,7 @@ var advanceSpeed = 0.5;
 
 var levelState = {
     preload: function () {
+		game.load.audio('swapCell', "sounds/blop.mp3");
         game.load.image("backgroundGlobal", "assets/back-pattern.jpg", 150, 150);
         game.load.image("backgroundBrown", "assets/background-brown.png", 75, 75);
         game.load.image("decorationTube", "assets/tube-end-decoration.png", 7, 100);
@@ -37,7 +38,9 @@ var levelState = {
                     backgroundGlobal = game.add.image(xPos, j * 150, 'backgroundGlobal');
             }
         }
+		var swapSound
         var injectorLight;
+		var generator;
         selectedCells = [];
         selectedCell = null;
         levelPath = levelsConfig[currentLevel].path;
@@ -59,6 +62,7 @@ var levelState = {
         debugGroupPath = game.add.group();
         debugGroup = game.add.group();
         
+		this.initSounds();
         this.initPath();              
 		this.initInjector();
 		this.initGenerator();
@@ -67,6 +71,10 @@ var levelState = {
         moveAvailable = false;
     },
     
+	initSounds: function(){
+		swapSound = game.add.audio('swapCell');
+	},
+	
     initGameDecoration: function(){
         for (var i = 0; i < 6; i++){
             var xPos = i * 75 + startPosition.x - 22 ; 
@@ -146,17 +154,19 @@ var levelState = {
 	},
 	
 	initGenerator: function () {
-		var generator = generatorFrame.create(startPosition.x,startPosition.y,'generatorFrame');
+		generator = generatorFrame.create(startPosition.x,startPosition.y,'generatorFrame');
 		generator.scale.set (scale);
 		generator.anchor.set (0.5);
-        generator.frame = 0;
+		generator.animations.add('green',[2,0], 2, false);
+		generator.animations.add('red',[1,0], 2, false);
 	},
 
     update: function () {
 
         if (this.shouldMove()){
             moveAvailable = false;
-            injectorLight.frame = 0 ;
+            injectorLight.frame = 0;
+			generator.frame = 0;
             checkInjector();
             cells.forEach(function(cell){
                 cell.objectRef.advance();
@@ -196,7 +206,11 @@ function cellGeneration () {
 		return cell.objectRef.currentStep === 0 ? true : false;
 	}, true);
 	var randomizerGenerator = Math.floor((Math.random() * 4));
+	if (childrenInFirstCell.total != 0){
+		generator.animations.play('red');
+	}
 	if (childrenInFirstCell.total === 0 && randomizerGenerator <= 1) {
+		generator.animations.play('green');
 		var randomCell = cellTypes[Math.floor((Math.random() * cellTypes.length))];
 		new Cell(randomCell.name,startPosition);
 	}

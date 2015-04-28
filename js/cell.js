@@ -1,6 +1,7 @@
 function Cell(type, position){
     
     this.moveToPathPosition = function(targetStep){
+		swapSound.play();
         var targetPosition = getStepPosition(targetStep);
         TweenMax.to(this.sprite, swapSpeed,{
                 x: targetPosition.x,
@@ -19,7 +20,7 @@ function Cell(type, position){
                 x: currentPosition.x + 6,
                 yoyo: true,
                 repeat: 10,
-                onComplete: function () { this.sprite.x = currentPosition.x }
+                //onComplete: function () { this.sprite.x = currentPosition.x }
             })
         }
     }
