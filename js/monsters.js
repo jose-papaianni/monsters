@@ -6,15 +6,25 @@ var cellSize = 150*scale;
 var swapSpeed = 0.25;
 var advanceSpeed = 0.5;
 
+WebFontConfig = {
+	google: {
+      families: ['Chango']
+    }
+};
+
 var levelState = {
+
     preload: function () {
+		game.load.script('webfont', 'http://ajax.googleapis.com/ajax/libs/webfont/1.4.7/webfont.js');
 		game.load.audio('swapCell', "sounds/blop.mp3");
+		game.load.image("levelComplete", "assets/level-complete.png", 504,367);
         game.load.image("backgroundGlobal", "assets/back-pattern.jpg", 150, 150);
         game.load.image("backgroundBrown", "assets/background-brown.png", 75, 75);
         game.load.image("decorationTube", "assets/tube-end-decoration.png", 7, 100);
         game.load.image("vBag", "assets/puch.png", 341, 546);
         game.load.image("monster", "assets/monster-lever.png", 289, 288);
         game.load.image("fluid", "assets/bag-liquid.png", 118, 188);
+		game.load.image("missionDialog", "assets/misson-dialog.png", 188, 267);
         game.load.spritesheet("generatorFrame", "assets/generator-frame.png", 200, 200);
         game.load.spritesheet("path", "assets/path-parts.png", 150, 150);
         game.load.spritesheet("marker", "assets/marker.png", 150, 20);
@@ -96,6 +106,7 @@ var levelState = {
 	 	vBagFluid.mask = bagMask;
 		var vBag = game.add.image (-100,0,'vBag');
 		vBag.scale.set(0.8);		
+		var missionDialog = game.add.image(14, 180, 'missionDialog');
 		var monster = game.add.image(10, 370, 'monster');
 		monster.scale.set(0.8);
 		
