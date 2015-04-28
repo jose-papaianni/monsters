@@ -1,6 +1,6 @@
 TweenMax.ticker.useRAF(false);
 TweenMax.lagSmoothing(0);
-var debuggerMode = true;
+var debuggerMode = false;
 var scale = 0.55;
 var cellSize = 150*scale;
 var swapSpeed = 0.25;
@@ -14,7 +14,7 @@ var levelState = {
         game.load.image("vBag", "assets/puch.png", 341, 546);
         game.load.image("monster", "assets/monster-lever.png", 289, 288);
         game.load.image("fluid", "assets/bag-liquid.png", 118, 188);
-        game.load.spritesheet("generatorFrame", "assets/generator-frame.png", 134, 135);
+        game.load.spritesheet("generatorFrame", "assets/generator-frame.png", 200, 200);
         game.load.spritesheet("path", "assets/path-parts.png", 150, 150);
         game.load.spritesheet("marker", "assets/marker.png", 150, 20);
         game.load.spritesheet("tubedPath", "assets/path-tube.png", 150, 150);
@@ -63,7 +63,7 @@ var levelState = {
 		this.initInjector();
 		this.initGenerator();
         debugGridPath();
-        addCellMovement ();
+        addCellMovement();
         
     },
     
@@ -146,9 +146,10 @@ var levelState = {
 	},
 	
 	initGenerator: function () {
-		var generator = generatorFrame.create(startPosition.x +2,startPosition.y+2,'generatorFrame');
-		generator.scale.set (0.85);
+		var generator = generatorFrame.create(startPosition.x,startPosition.y,'generatorFrame');
+		generator.scale.set (scale);
 		generator.anchor.set (0.5);
+        generator.frame = 0;
 	}
 }
 
@@ -196,7 +197,7 @@ function checkSolution() {
             solution.push(cells.getChildAt(i).objectRef);
         } else {
             if (solution.length<3){
-                injectorLight.frame = 1;
+                injectorLight.frame = 1;    
                 solution = [];
             }
             break;
