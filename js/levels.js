@@ -1,7 +1,43 @@
 var levelsConfig = [
     {
         speed: 1500,
+        startPosition : {x:340,y:90},
+        availableCells: [2,3],
+        totalCellsGoal: 6,
+        path : [
+            {x:0,y:0,allowTarget: true},
+            {x:1,y:0,allowTarget: false},
+            {x:2,y:0,allowTarget: false},
+            {x:3,y:0,allowTarget: false},
+            {x:4,y:0,allowTarget: false},
+            {x:4,y:1,allowTarget: false},
+            {x:4,y:2,allowTarget: false},
+            {x:3,y:2,allowTarget: true},
+            {x:2,y:2,allowTarget: true},
+            {x:1,y:2,allowTarget: false},
+            {x:1,y:3,allowTarget: false},
+            {x:2,y:3,allowTarget: true},
+            {x:3,y:3,allowTarget: true},
+            {x:4,y:3,allowTarget: false},
+            {x:4,y:4,allowTarget: false},
+            {x:4,y:5,allowTarget: false},
+            {x:3,y:5,allowTarget: false},
+            {x:2,y:5,allowTarget: false},
+            {x:1,y:5,allowTarget: false},
+            {x:0,y:5,allowTarget: false},
+            {x:-1,y:5,allowTarget: false,injector: true},
+            {x:-1,y:4,allowTarget: false,injector: true},
+            {x:-1,y:3,allowTarget: false,injector: true},
+            {x:-1,y:2,allowTarget: false,injector: true},
+            {x:-1,y:1,allowTarget: false,injector: true},
+            {x:-1,y:0,allowTarget: false,injector: true}
+        ]
+    },
+    {
+        speed: 1500,
 		startPosition : {x:340,y:90},
+        availableCells: [0,1,2],
+        totalCellsGoal: 6,
         path : [
             {x:0,y:0,allowTarget: true},
             {x:1,y:0,allowTarget: false},

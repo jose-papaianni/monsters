@@ -54,6 +54,7 @@ var levelState = {
         selectedCells = [];
         selectedCell = null;
         levelPath = levelsConfig[currentLevel].path;
+        levelCells = levelsConfig[currentLevel].availableCells;
         coverMatrix = levelsConfig[currentLevel].cover;
 		startPosition = levelsConfig[currentLevel].startPosition;
         this.initGameDecoration();
@@ -77,8 +78,8 @@ var levelState = {
 		this.initInjector();
 		this.initGenerator();
         debugGridPath();
-        addCellMovement();
-        moveAvailable = false;
+        injectedCells = 0;
+        moveAvailable = true;
     },
     
 	initSounds: function(){
@@ -184,6 +185,7 @@ var levelState = {
             },this,false);
             cellGeneration();
             debugGrid();
+            fireNextMovement(levelsConfig[currentLevel].speed);
         }
 
     },
@@ -206,10 +208,10 @@ function setTubeEnd(x,y,direction){
     }   
 };
 
-function addCellMovement(){
-    setInterval( function () {
+function fireNextMovement(speed){
+    setTimeout(function(){
         moveAvailable = true;
-    }, levelsConfig[currentLevel].speed); 
+    }, speed);
 };
 
 function cellGeneration () {
@@ -222,7 +224,7 @@ function cellGeneration () {
 	}
 	if (childrenInFirstCell.total === 0 && randomizerGenerator <= 1) {
 		generator.animations.play('green');
-		var randomCell = cellTypes[Math.floor((Math.random() * cellTypes.length))];
+		var randomCell = cellTypes[levelCells[Math.floor((Math.random() * levelCells.length))]];
 		new Cell(randomCell.name,startPosition);
 	}
 };
@@ -305,6 +307,15 @@ function checkInjector(){
                         deferred.resolve();
                     }
                 });
+                injectedCells += solution.length;
+                if (injectedCells >= levelsConfig[currentLevel].totalCellsGoal){
+                    if (currentLevel<levelsConfig.length-1){
+                        currentLevel++;
+                        game.state.start("level-state",true,false);
+                    } else {
+                        console.log("Ganaste")
+                    }
+                }
                 return deferred.promise;
             }
 
@@ -373,4 +384,7 @@ function checkMovementToPath (step) {
     }
 }
 
-var game = new Phaser.Game(800, 600, Phaser.CANVAS, 'phaser-example', levelState);
+var game = new Phaser.Game(800, 600, Phaser.CANVAS, 'lab-monster');
+
+game.state.add("level-state",levelState);
+game.state.start("level-state");
