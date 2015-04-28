@@ -64,7 +64,7 @@ var levelState = {
 		this.initGenerator();
         debugGridPath();
         addCellMovement();
-        
+        moveAvailable = false;
     },
     
     initGameDecoration: function(){
@@ -150,7 +150,26 @@ var levelState = {
 		generator.scale.set (scale);
 		generator.anchor.set (0.5);
         generator.frame = 0;
-	}
+	},
+
+    update: function () {
+
+        if (this.shouldMove()){
+            moveAvailable = false;
+            injectorLight.frame = 0 ;
+            checkInjector();
+            cells.forEach(function(cell){
+                cell.objectRef.advance();
+            },this,false);
+            cellGeneration();
+            debugGrid();
+        }
+
+    },
+
+    shouldMove: function (){
+        return moveAvailable;
+    }
 }
 
 function setTubeEnd(x,y,direction){
@@ -168,13 +187,7 @@ function setTubeEnd(x,y,direction){
 
 function addCellMovement(){
     setInterval( function () {
-        injectorLight.frame = 0 ;
-        checkInjector();
-        cells.forEach(function(cell){
-            cell.objectRef.advance();
-        },this,false);
-		cellGeneration();
-        debugGrid();
+        moveAvailable = true;
     }, levelsConfig[currentLevel].speed); 
 };
 
