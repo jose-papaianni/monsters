@@ -3,7 +3,7 @@ function Cell(type, position){
     this.moveToPathPosition = function(targetStep){
 		swapSound.play();
         var targetPosition = getStepPosition(targetStep);
-        TweenMax.to(this.sprite, swapSpeed,{
+        TweenMax.to(this.getSprites(), swapSpeed,{
                 x: targetPosition.x,
                 y: targetPosition.y,
                 ease: Power3.easeOut,
@@ -16,7 +16,7 @@ function Cell(type, position){
         while (!TweenMax.isTweening(this.sprite)){
             var currentPosition = getStepPosition(this.currentStep);
             this.sprite.x = currentPosition.x -3;
-            TweenMax.to (this.sprite, 0.05, {
+            TweenMax.to (this.getSprites(), 0.05, {
                 x: currentPosition.x + 6,
                 yoyo: true,
                 repeat: 10,
@@ -43,7 +43,7 @@ function Cell(type, position){
 
             if (move) {
                 var nextPos = getStepPosition(nextStep);
-                TweenMax.to(this.sprite, advanceSpeed,{
+                TweenMax.to(this.getSprites(), advanceSpeed,{
                     x: nextPos.x,
                     y: nextPos.y,
                     ease: Back.easeInOut.config(1.2),
@@ -79,9 +79,28 @@ function Cell(type, position){
         clearInterval(this.sprite.reflexInterval);
     }
     
-    
+	this.getSprites = function (){
+		return [this.sprite, this.glowEffect];
+	} 
+    this.removeCell = function () {
+		cells.remove(this.sprite, true);
+		this.glowEffect.kill();
+	}
+	
+	this.startGlowing = function () {
+		TweenMax.to(this.glowEffect, swapSpeed, {
+			alpha: 1,
+			yoyo: true,
+			repeat: -1
+		})
+	}
+		
     //initialization
     this.sprite = cells.create(position.x,position.y, type);
+	this.glowEffect = game.add.image (position.x, position.y, "purpleGlow");
+	this.glowEffect.anchor.set (0.5);
+	this.glowEffect.scale.set(scale);
+	this.glowEffect.alpha = 0.5;
     this.type = type;
     this.injectorHead = false;
     this.sprite.anchor.set (0.5,0.5);

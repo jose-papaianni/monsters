@@ -2,7 +2,7 @@ var levelsConfig = [
     {
         speed: 1200,
         startPosition : {x:340,y:90},
-        availableCells: [2,3],
+        availableCells: [0,1],
         totalCellsGoal: 18,
         cellGenProbability: 0.50,
         path : [

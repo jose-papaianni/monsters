@@ -42,7 +42,10 @@ function BloodMachine(){
                     that.injector.blender.forEach(function (blended) {
                         anim = blended.animations.play("blend");
                     }, this, false);
-                    cells.removeBetween(0,solution.length-1,true);
+					for (var i = 0; i < solution.length; i++){
+						solution[i].removeCell();
+					}
+                    //cells.removeBetween(0,solution.length-1,true);
                     anim.onComplete.add(function(){
                         deferred.resolve();
                     });
