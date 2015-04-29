@@ -66,7 +66,7 @@ function swapCells(cellSprite){
             cell.addCellEffects();
         } else {
             //select this cell
-            selectedCell = this;
+            selectedCell = cellSprite.objectRef;
             cellSprite.frame = 9;
         }
     }
