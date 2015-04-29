@@ -92,7 +92,13 @@ var cellTypes = [
             filename: "assets/redcell-blend.png",
             w: 110,
             h: 150
-            }
+            },
+		glow: {
+			name: 'redCellGlow',
+			filename: "assets/red-glow.png",
+			w: 150,
+			h: 150
+		}
     },
     {
         name:'purpleCell',
@@ -104,7 +110,13 @@ var cellTypes = [
             filename: "assets/purplecell-blend.png",
             w: 110,
             h: 150
-            }
+            },
+		glow: {
+			name: 'purpleCellGlow',
+			filename: "assets/purple-glow.png",
+			w: 150,
+			h: 150
+		}
     },
     {
         name:'blueCell',
@@ -116,7 +128,13 @@ var cellTypes = [
             filename: "assets/bluecell-blend.png",
             w: 110,
             h: 150
-            }
+            },
+		glow: {
+			name: 'blueCellGlow',
+			filename: "assets/blue-glow.png",
+			w: 150,
+			h: 150
+		}
     },
     {
         name:'yellowCell',
@@ -128,6 +146,12 @@ var cellTypes = [
             filename: "assets/yellowcell-blend.png",
             w: 110,
             h: 150
-            }
+            },
+		glow: {
+			name: 'yellowCellGlow',
+			filename: "assets/yellow-glow.png",
+			w: 150,
+			h: 150
+		}
     }
 ];

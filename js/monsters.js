@@ -25,7 +25,6 @@ var levelState = {
         game.load.image("monster", "assets/monster-lever.png", 289, 288);
         game.load.image("fluid", "assets/bag-liquid.png", 118, 188);
 		game.load.image("missionDialog", "assets/misson-dialog.png", 188, 267);
-		game.load.image("purpleGlow", "assets/purple-glow.png", 150,150);
         game.load.spritesheet("generatorFrame", "assets/generator-frame.png", 200, 200);
         game.load.spritesheet("path", "assets/path-parts.png", 150, 150);
         game.load.spritesheet("marker", "assets/marker.png", 150, 20);
@@ -36,6 +35,7 @@ var levelState = {
         for (var i = 0; i<cellTypes.length; i++){
             game.load.spritesheet(cellTypes[i].name, cellTypes[i].filename , cellTypes[i].w,cellTypes[i].h);
             game.load.spritesheet(cellTypes[i].blend.name, cellTypes[i].blend.filename , cellTypes[i].blend.w,cellTypes[i].blend.h);
+			game.load.image(cellTypes[i].glow.name, cellTypes[i].glow.filename, cellTypes[i].glow.w, cellTypes[i].glow.h);
         }
 
     }, 

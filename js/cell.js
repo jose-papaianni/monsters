@@ -88,19 +88,19 @@ function Cell(type, position){
 	}
 	
 	this.startGlowing = function () {
-		TweenMax.to(this.glowEffect, swapSpeed, {
-			alpha: 1,
-			yoyo: true,
-			repeat: -1
-		})
+	TweenMax.to(this.glowEffect, swapSpeed, {
+			alpha: 0.5,
+		});
+	TweenMax.to(this.glowEffect, swapSpeed, {
+		delay: swapSpeed,
+		alpha: 1,
+		yoyo: true,
+		repeat: -1
+	});
 	}
 		
     //initialization
     this.sprite = cells.create(position.x,position.y, type);
-	this.glowEffect = game.add.image (position.x, position.y, "purpleGlow");
-	this.glowEffect.anchor.set (0.5);
-	this.glowEffect.scale.set(scale);
-	this.glowEffect.alpha = 0.5;
     this.type = type;
     this.injectorHead = false;
     this.sprite.anchor.set (0.5,0.5);
@@ -111,5 +111,9 @@ function Cell(type, position){
     this.sprite.events.onInputDown.add(swapCells,this);
     this.sprite.animations.add('reflex',[0,1,2,3,4,5,6,7,8,9,10], 60, false);
     this.sprite.objectRef = this;    
-    this.addCellEffects();    
+    this.addCellEffects();
+	this.glowEffect = game.add.image (position.x, position.y, this.type + "Glow");
+	this.glowEffect.anchor.set (0.5);
+	this.glowEffect.scale.set(scale);
+	this.glowEffect.alpha = 0;
 }
