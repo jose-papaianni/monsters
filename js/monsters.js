@@ -51,6 +51,7 @@ var levelState = {
 		var swapSound
         var injectorLight;
 		var generator;
+		var globalTimer
         selectedCells = [];
         selectedCell = null;
         levelPath = levelsConfig[currentLevel].path;
@@ -209,7 +210,7 @@ function setTubeEnd(x,y,direction){
 };
 
 function fireNextMovement(speed){
-    setTimeout(function(){
+    globalTimer = setTimeout(function(){
         moveAvailable = true;
     }, speed);
 };
@@ -310,6 +311,7 @@ function checkInjector(){
                 injectedCells += solution.length;
                 if (injectedCells >= levelsConfig[currentLevel].totalCellsGoal){
                     if (currentLevel<levelsConfig.length-1){
+						clearInterval(globalTimer);
                         currentLevel++;
                         game.state.start("level-state",true,false);
                     } else {
