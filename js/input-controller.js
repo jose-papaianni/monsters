@@ -33,6 +33,7 @@ function checkMovementToPath (step) {
                     cells.setChildIndex(selectedCell.sprite, currentIndex);
                 };
                 selectedCell.moveToPathPosition(step.pathPosition.index);
+                bloodMachine.checkPartialSolutions();
             } else {
                 //Movement is not valid
                 selectedCell.shake();
@@ -57,6 +58,7 @@ function swapCells(cellSprite){
                 cells.swapChildren(cellSprite,selectedCell.sprite);
                 cell.moveToPathPosition(targetStep);
                 selectedCell.moveToPathPosition(currentStep);
+                bloodMachine.checkPartialSolutions();
             } else {
                 cell.shake();
             }

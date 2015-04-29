@@ -11,7 +11,7 @@ function BloodMachine(){
             cells.getChildAt(0).objectRef.injectorHead = true;
         }
         if (this.injectorFull()) {
-            var solution = this.checkSolution();
+            var solution = this.checkSolution(0);
             if (solution.length>0){
                 for (var i=0;i<solution.length;i++){
                     solution[i].injected = true;
@@ -77,6 +77,8 @@ function BloodMachine(){
                 };
 
                 lowerMarker().then(blendCells).then(inject);
+            } else {
+                this.injector.light.frame = 1;
             }
         }
     };
@@ -97,19 +99,24 @@ function BloodMachine(){
         }
     };
 
-    this.checkSolution = function(){
-        var solution = [cells.getChildAt(0).objectRef];
+    this.checkSolution = function(offset){
+        if (cells.length < 3){
+            return [];
+        }
+        var solution = [cells.getChildAt(offset).objectRef];
         var type = solution[0].type;
-        for (var i=1; i<6; i++){
+        for (var i=offset+1; i<Math.min(offset+6,cells.length); i++){
             if (cells.getChildAt(i).objectRef.type === type){
                 solution.push(cells.getChildAt(i).objectRef);
             } else {
                 if (solution.length<3){
-                    this.injector.light.frame = 1;
                     solution = [];
                 }
                 break;
             }
+        }
+        if (solution.length<3){
+            solution = [];
         }
         return solution;
     };
@@ -121,7 +128,28 @@ function BloodMachine(){
             this.generator.animations.play('green');
             var randomCell = cellTypes[levelCells[Math.floor((Math.random() * levelCells.length))]];
             new Cell(randomCell.name,startPosition);
+            this.checkPartialSolutions();
         }
+    };
+
+    this.checkPartialSolutions = function(){
+        //cells.callAll("objectRef.removePartialSolution",this);
+        cells.forEach(function(cell){
+            cell.objectRef.partialSolution = null;
+        },this,false);
+        cells.forEach(function(cell){
+            if (!cell.objectRef.partialSolution){
+                var partialSolution = this.checkSolution(cells.getChildIndex(cell));
+                if (partialSolution.length > 0){
+                    for (var i=0; i<partialSolution.length; i++){
+                        partialSolution[i].partialSolution = partialSolution;
+                        partialSolution[i].startGlowing();
+                    }
+                } else {
+                    cell.objectRef.stopGlowing();
+                }
+            }
+        },this,false);
     };
 
     this.isPathCovered = function(step){
@@ -254,6 +282,7 @@ function BloodMachine(){
         this.generator.anchor.set (0.5);
         this.generator.animations.add('green',[2,0], 2, false);
         this.generator.animations.add('red',[1,0], 2, false);
+        this.partialSolutions = [];
     };
 
     var startPosition = levelsConfig[currentLevel].startPosition;

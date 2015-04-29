@@ -19,7 +19,7 @@ function Cell(type, position){
             TweenMax.to (this.getSprites(), 0.05, {
                 x: currentPosition.x + 6,
                 yoyo: true,
-                repeat: 10,
+                repeat: 10
                 //onComplete: function () { this.sprite.x = currentPosition.x }
             })
         }
@@ -63,7 +63,7 @@ function Cell(type, position){
             cell.sprite.frame = 0;
             selectedCell = null;
         }
-    }
+    };
     
     
     this.addCellEffects = function(){
@@ -73,34 +73,46 @@ function Cell(type, position){
                 sprite.animations.play('reflex', 45, false);
             }            
         },Math.random()*1000+1500);
-    }
+    };
     
     this.stopCellEffects = function(){
         clearInterval(this.sprite.reflexInterval);
-    }
+    };
     
 	this.getSprites = function (){
 		return [this.sprite, this.glowEffect];
-	} 
+	};
+
     this.removeCell = function () {
 		cells.remove(this.sprite, true);
 		this.glowEffect.kill();
-	}
+	};
 	
 	this.startGlowing = function () {
-	TweenMax.to(this.glowEffect, swapSpeed, {
-			alpha: 0.5,
-		});
-	TweenMax.to(this.glowEffect, swapSpeed, {
-		delay: swapSpeed,
-		alpha: 1,
-		yoyo: true,
-		repeat: -1
-	});
-	}
+        TweenMax.to(this.glowEffect, swapSpeed, {
+            alpha: 0.5
+        });
+        TweenMax.to(this.glowEffect, swapSpeed, {
+            delay: swapSpeed,
+            alpha: 1,
+            yoyo: true,
+            repeat: -1
+    	});
+	};
+
+    this.stopGlowing = function(){
+        TweenMax.to(this.glowEffect, swapSpeed, {
+            alpha: 0
+        });
+    };
+
+    this.removePartialSolution = function(){
+        this.partialSolution = null;
+    }
 		
     //initialization
     this.sprite = cells.create(position.x,position.y, type);
+
     this.type = type;
     this.injectorHead = false;
     this.sprite.anchor.set (0.5,0.5);
@@ -116,4 +128,5 @@ function Cell(type, position){
 	this.glowEffect.anchor.set (0.5);
 	this.glowEffect.scale.set(scale);
 	this.glowEffect.alpha = 0;
+    this.partialSolution = null;
 }
