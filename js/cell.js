@@ -25,46 +25,20 @@ function Cell(type, position){
         }
     }
     
-    this.swapPosition = function(){
-        if (!isCovered(this.currentStep)){
-            this.stopCellEffects();
-            if (selectedCell) {
-                var currentStep = this.currentStep;
-                var targetStep = selectedCell.currentStep;
-                if (isAdjacent(levelPath[currentStep],levelPath[targetStep]) && !isCovered(currentStep) && !isCovered(targetStep)){
-                    cells.swapChildren(this.sprite,selectedCell.sprite);
-                    this.moveToPathPosition(targetStep);
-                    selectedCell.moveToPathPosition(currentStep);                
-                } else {
-                    this.shake();
-                } 
-                deselectCell();
-                this.addCellEffects();
-            } else {
-                //select this cell
-                selectedCell = this;
-                this.sprite.frame = 9;
-            }
-        }
-    }
-    
     this.cellIndex = function(){
         return cells.getChildIndex(this.sprite);
     }
     
     this.advance = function(){
         //console.log("advancing cell in "+this.currentStep);
-        if (!this.injected && (!this.injectorHead || injectorFull())) {
+        if (!this.injected && (!this.injectorHead || bloodMachine.injectorFull())) {
             this.injectorHead = false;
             var nextStep = (this.currentStep === levelPath.length-1) ? 0 : this.currentStep +1;
             var move = false;
             if (nextStep == 0){
                 move = cells.length < levelPath.length;
             } else {
-                var cellInNextStep = cells.filter(function(cell) {
-                    return cell.objectRef.currentStep === nextStep;
-                });
-                move = cellInNextStep.total === 0;
+                move = bloodMachine.getCellsInPath(nextStep) == null;
             }
 
             if (move) {
@@ -85,7 +59,7 @@ function Cell(type, position){
         if (nextStep === 0){
             cells.bringToTop(cells.getChildAt(0));
         }  
-        if (selectedCell == cell && isCovered(cell.currentStep)){
+        if (selectedCell == cell && bloodMachine.isPathCovered(cell.currentStep)){
             cell.sprite.frame = 0;
             selectedCell = null;
         }
@@ -115,7 +89,7 @@ function Cell(type, position){
     this.currentStep = 0;
     this.injected = false;
     this.sprite.inputEnabled = true;
-    this.sprite.events.onInputDown.add(this.swapPosition,this);
+    this.sprite.events.onInputDown.add(swapCells,this);
     this.sprite.animations.add('reflex',[0,1,2,3,4,5,6,7,8,9,10], 60, false);
     this.sprite.objectRef = this;    
     this.addCellEffects();    

@@ -1,9 +1,10 @@
 var levelsConfig = [
     {
-        speed: 1500,
+        speed: 1200,
         startPosition : {x:340,y:90},
         availableCells: [2,3],
-        totalCellsGoal: 6,
+        totalCellsGoal: 18,
+        cellGenProbability: 0.50,
         path : [
             {x:0,y:0,allowTarget: true},
             {x:1,y:0,allowTarget: false},
@@ -37,7 +38,8 @@ var levelsConfig = [
         speed: 1500,
 		startPosition : {x:340,y:90},
         availableCells: [0,1,2],
-        totalCellsGoal: 6,
+        totalCellsGoal: 18,
+        cellGenProbability: 0.50,
         path : [
             {x:0,y:0,allowTarget: true},
             {x:1,y:0,allowTarget: false},
