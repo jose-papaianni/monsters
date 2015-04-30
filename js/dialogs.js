@@ -1,25 +1,25 @@
-function megaComboDialog () {
+function animationCombo (ray,back,text) {
     
-    var rayImage = game.add.image(startPosition.x-45,startPosition.y-60,'megaComboRay');
+    var rayImage = game.add.image(startPosition.x-45,startPosition.y-60, ray);
 	rayImage.scale.set(0.83,0.89);
 	var rayMask = game.add.graphics(game.world.centerX+100, game.world.centerY);
 	rayMask.beginFill(0xffffff);
 	rayMask.drawCircle(0,0,700);
 	rayMask.scale.set(0.0001);
 	rayImage.mask = rayMask;
-    var megaComboBack = game.add.image (game.world.centerX+110, game.world.centerY,'megaComboBack');
-    megaComboBack.scale.set(0.84,0);
-    megaComboBack.anchor.set(0.5);
-    var megaComboText = game.add.image (game.world.centerX+110, game.world.centerY,'megaComboText');
-    megaComboText.scale.set(0.85);
-    megaComboText.anchor.set(0.5);
+    var comboBack = game.add.image (game.world.centerX+110, game.world.centerY,back);
+    comboBack.scale.set(0.84,0);
+    comboBack.anchor.set(0.5);
+    var comboText = game.add.image (game.world.centerX+110, game.world.centerY,text);
+    comboText.scale.set(0.85);
+    comboText.anchor.set(0.5);
 
 	
-    TweenMax.to (megaComboBack.scale, 0.5, {
+    TweenMax.to (comboBack.scale, 0.5, {
         y: 0.84,
         ease: Power3.easeOut
     });
-    TweenMax.from (megaComboText, 1, {
+    TweenMax.from (comboText, 1, {
         y: -300,
         ease: Elastic.easeOut.config(0.7, 0.3)
     });
@@ -29,12 +29,12 @@ function megaComboDialog () {
 		y: 1,
 		ease: RoughEase.ease.config({ template: Power0.easeNone, strength: 2, points: 50, taper: "none", randomize: true, clamp: false})
 	});
-    TweenMax.to (megaComboText, 0.5, {
+    TweenMax.to (comboText, 0.5, {
         delay: 1,
         y: 800,
         ease: Power3.easeIn
     });
-    TweenMax.to (megaComboBack.scale, 0.5, {
+    TweenMax.to (comboBack.scale, 0.5, {
         delay: 1,
         y: 0,
         ease: Power3.easeOut
@@ -52,3 +52,17 @@ function megaComboDialog () {
     });
 
 };
+
+function callComboAnimation (combo) {
+	switch (combo){
+		case 'superCombo':
+			animationCombo('superComboRay','superComboBack','superComboText')
+		break;
+		case 'megaCombo':
+			animationCombo('megaComboRay','megaComboBack','megaComboText')
+		break;		
+		case 'ultraCombo':
+			animationCombo('ultraComboRay','ultraComboBack','ultraComboText')
+		break;
+	}
+}
