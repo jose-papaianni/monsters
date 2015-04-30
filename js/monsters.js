@@ -21,7 +21,7 @@ var levelState = {
         game.load.image("backgroundGlobal", "assets/back-pattern.jpg", 150, 150);
         game.load.image("backgroundBrown", "assets/background-brown.png", 75, 75);
         game.load.image("decorationTube", "assets/tube-end-decoration.png", 7, 100);
-        game.load.image("vBag", "assets/puch.png", 341, 546);
+        game.load.image("vBag", "assets/pouch.png", 341, 546);
         game.load.image("monster", "assets/monster-lever.png", 289, 288);
         game.load.image("fluid", "assets/bag-liquid.png", 118, 188);
 		game.load.image("missionDialog", "assets/misson-dialog.png", 188, 267);
@@ -70,6 +70,7 @@ var levelState = {
         
 		this.initSounds();
         debugGridPath();
+        //game.input.onDown.add(beginSwipe, this);
         moveAvailable = true;
     },
     

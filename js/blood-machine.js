@@ -189,8 +189,8 @@ function BloodMachine(){
                 step.scale.set(scale);
                 step.pathPosition = {index:i,x:levelPath[i].x,y:levelPath[i].y};
                 step.anchor.set(0.5,0.5);
-                step.inputEnabled = true;
-                step.events.onInputDown.add(checkMovementToPath, this);
+                //step.inputEnabled = true;
+                //step.events.onInputDown.add(checkMovementToPath, this);
                 var nextDir = getDirection(levelPath[i],i==levelPath.length-1 ? {x:-1,y:5} : levelPath[i+1]);
                 if (lastDir === nextDir){
                     step.frame = (lastDir === 0 || lastDir === 2) ? 1 : 0;

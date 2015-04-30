@@ -84,72 +84,72 @@ var powerUps = [
 var cellTypes = [    
     {
         name:'redCell',
-        filename: "assets/redcell.png",
+        filename: "assets/cells/redcell.png",
         w: 110,
         h: 110,
         blend: { 
             name: 'redCell-blend',
-            filename: "assets/redcell-blend.png",
+            filename: "assets/cells/redcell-blend.png",
             w: 110,
             h: 150
             },
 		glow: {
 			name: 'redCellGlow',
-			filename: "assets/red-glow.png",
+			filename: "assets/cells/red-glow.png",
 			w: 150,
 			h: 150
 		}
     },
     {
         name:'purpleCell',
-        filename: "assets/purplecell.png",
+        filename: "assets/cells/purplecell.png",
         w: 110,
         h: 110,
         blend: { 
             name: 'purpleCell-blend',
-            filename: "assets/purplecell-blend.png",
+            filename: "assets/cells/purplecell-blend.png",
             w: 110,
             h: 150
             },
 		glow: {
 			name: 'purpleCellGlow',
-			filename: "assets/purple-glow.png",
+			filename: "assets/cells/purple-glow.png",
 			w: 150,
 			h: 150
 		}
     },
     {
         name:'blueCell',
-        filename: "assets/bluecell.png",
+        filename: "assets/cells/bluecell.png",
         w: 110,
         h: 110,
         blend: { 
             name: 'blueCell-blend',
-            filename: "assets/bluecell-blend.png",
+            filename: "assets/cells/bluecell-blend.png",
             w: 110,
             h: 150
             },
 		glow: {
 			name: 'blueCellGlow',
-			filename: "assets/blue-glow.png",
+			filename: "assets/cells/blue-glow.png",
 			w: 150,
 			h: 150
 		}
     },
     {
         name:'yellowCell',
-        filename: "assets/yellowcell.png",
+        filename: "assets/cells/yellowcell.png",
         w: 110,
         h: 110,
         blend: { 
             name: 'yellowCell-blend',
-            filename: "assets/yellowcell-blend.png",
+            filename: "assets/cells/yellowcell-blend.png",
             w: 110,
             h: 150
             },
 		glow: {
 			name: 'yellowCellGlow',
-			filename: "assets/yellow-glow.png",
+			filename: "assets/cells/yellow-glow.png",
 			w: 150,
 			h: 150
 		}

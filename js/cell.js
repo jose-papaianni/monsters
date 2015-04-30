@@ -120,7 +120,7 @@ function Cell(type, position){
     this.currentStep = 0;
     this.injected = false;
     this.sprite.inputEnabled = true;
-    this.sprite.events.onInputDown.add(swapCells,this);
+    this.sprite.events.onInputDown.add(beginSwipe,this);
     this.sprite.animations.add('reflex',[0,1,2,3,4,5,6,7,8,9,10], 60, false);
     this.sprite.objectRef = this;    
     this.addCellEffects();
