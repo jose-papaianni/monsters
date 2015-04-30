@@ -26,6 +26,8 @@ var levelState = {
         game.load.image("fluid", "assets/bag-liquid.png", 118, 188);
 		game.load.image("missionDialog", "assets/misson-dialog.png", 188, 267);
 		game.load.image('megaComboRay',"assets/mega-combo-rays.png", 522, 604);
+        game.load.image('megaComboBack',"assets/mega-combo-back.png",504,367);
+        game.load.image('megaComboText',"assets/mega-combo.png",387,144);
         game.load.spritesheet("generatorFrame", "assets/generator-frame.png", 200, 200);
         game.load.spritesheet("path", "assets/path-parts.png", 150, 150);
         game.load.spritesheet("marker", "assets/marker.png", 150, 20);
