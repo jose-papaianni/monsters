@@ -88,15 +88,37 @@ function Cell(type, position){
 		this.glowEffect.kill();
 	};
 	
+	this.startBeating = function () {
+		TweenMax.fromTo ([this.glowEffect.scale, this.sprite.scale], swapSpeed,{
+			x: scale,
+			y: scale,
+		},{
+			x: scale-0.05,
+			y: scale-0.05,
+			ease: Power0.easeNone,
+			yoyo: true,
+			repeat: -1
+		})
+	};
+		
+	this.stopBeating = function () {
+		TweenMax.to ([this.glowEffect.scale, this.sprite.scale], swapSpeed,{
+			x: scale,
+			y: scale,
+			ease: Power3.easeInOut
+		})
+	}
+	
 	this.startGlowing = function () {
         TweenMax.to(this.glowEffect, swapSpeed, {
-            alpha: 0.5
+            alpha: 0.1
         });
-        TweenMax.to(this.glowEffect, swapSpeed, {
+        TweenMax.to(this.glowEffect, 1, {
             delay: swapSpeed,
-            alpha: 1,
+            alpha: 0.7,
             yoyo: true,
-            repeat: -1
+            repeat: -1,
+			ease: Power0.easeNone
     	});
 	};
 

@@ -17,6 +17,7 @@ var levelState = {
     preload: function () {
 		game.load.script('webfont', 'http://ajax.googleapis.com/ajax/libs/webfont/1.4.7/webfont.js');
 		game.load.audio('swapCell', "sounds/blop.mp3");
+		game.load.audio('thunderSound', "sounds/psudothunder.mp3");
 		game.load.image("levelComplete", "assets/level-complete.png", 504,367);
         game.load.image("backgroundGlobal", "assets/back-pattern.jpg", 150, 150);
         game.load.image("backgroundBrown", "assets/background-brown.png", 75, 75);
@@ -59,6 +60,7 @@ var levelState = {
             }
         }
 		var swapSound;
+		var thunderSound;
 		var globalTimer;
         selectedCells = [];
         selectedCell = null;
@@ -81,6 +83,7 @@ var levelState = {
     },
     
 	initSounds: function(){
+		thunderSound = game.add.audio('thunderSound');
 		swapSound = game.add.audio('swapCell');
 	},
 	
@@ -102,6 +105,7 @@ var levelState = {
                 cell.objectRef.advance();
             },this,false);
             bloodMachine.generateCell();
+			bloodMachine.checkPartialSolutions();
             debugGrid();
             fireNextMovement(levelsConfig[currentLevel].speed);
         }

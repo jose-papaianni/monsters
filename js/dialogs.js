@@ -14,7 +14,7 @@ function animationCombo (ray,back,text) {
     comboText.scale.set(0.85);
     comboText.anchor.set(0.5);
 
-	
+	thunderSound.play()
     TweenMax.to (comboBack.scale, 0.5, {
         y: 0.84,
         ease: Power3.easeOut

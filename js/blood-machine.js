@@ -124,6 +124,7 @@ function BloodMachine(){
     this.generateCell = function(){
         if (this.getCellsInPath(0) != null){
             this.generator.animations.play('red');
+			this.checkPartialSolutions();
         } else if (cells.length == 0 || Math.random() <= levelsConfig[currentLevel].cellGenProbability) {
             this.generator.animations.play('green');
             var randomCell = cellTypes[levelCells[Math.floor((Math.random() * levelCells.length))]];
@@ -143,10 +144,16 @@ function BloodMachine(){
                 if (partialSolution.length > 0){
                     for (var i=0; i<partialSolution.length; i++){
                         partialSolution[i].partialSolution = partialSolution;
-                        partialSolution[i].startGlowing();
+						partialSolution[i].startBeating();
+						//A different animation when the player has a game and the cells are inside the injector
+						if (partialSolution[i].currentStep >= levelPath.length - 6){
+							partialSolution[i].startGlowing();
+							partialSolution[i].stopBeating();
+						}
                     }
                 } else {
-                    cell.objectRef.stopGlowing();
+					cell.objectRef.stopBeating();
+					cell.objectRef.stopGlowing();
                 }
             }
         },this,false);
