@@ -88,21 +88,34 @@ function Cell(type, position){
 		this.glowEffect.kill();
 	};
 	
+    
+    
 	this.startBeating = function () {
-		TweenMax.fromTo ([this.glowEffect.scale, this.sprite.scale], swapSpeed,{
-			x: scale,
-			y: scale,
-		},{
-			x: scale-0.05,
-			y: scale-0.05,
-			ease: Power0.easeNone,
-			yoyo: true,
-			repeat: -1
-		})
+        //Normalize the size of the cell before start beating
+        TweenMax.to ([this.glowEffect.scale, this.sprite.scale], advanceSpeed,{
+            x:scale,
+            y:scale,
+            onComplete: startBeatingTween,
+        });
+        
+        var that = this;
+        
+        function startBeatingTween (){
+            TweenMax.fromTo ([that.glowEffect.scale, that.sprite.scale], advanceSpeed,{
+                x: scale,
+                y: scale,
+            },{
+                x: scale-0.1,
+                y: scale-0.1,
+                ease: Power0.easeNone,
+                yoyo: true,
+                repeat: -1
+            });
+        };
 	};
 		
 	this.stopBeating = function () {
-		TweenMax.to ([this.glowEffect.scale, this.sprite.scale], swapSpeed,{
+		TweenMax.to([this.glowEffect.scale, this.sprite.scale], advanceSpeed,{
 			x: scale,
 			y: scale,
 			ease: Power3.easeInOut
@@ -110,20 +123,26 @@ function Cell(type, position){
 	}
 	
 	this.startGlowing = function () {
-        TweenMax.to(this.glowEffect, swapSpeed, {
-            alpha: 0.1
+        //Normalize the alpha of the glow before start flashing
+        TweenMax.to(this.glowEffect, advanceSpeed,{
+            alpha: 0,
+            onComplete: startGlowingTween
         });
-        TweenMax.to(this.glowEffect, 1, {
-            delay: swapSpeed,
-            alpha: 0.7,
-            yoyo: true,
-            repeat: -1,
-			ease: Power0.easeNone
-    	});
-	};
+        
+        var that = this; 
+        
+        function startGlowingTween () {
+            TweenMax.to(that.glowEffect, advanceSpeed, {
+                alpha: 0.7,
+                yoyo: true,
+                repeat: -1,
+                ease: Power0.easeNone
+            });
+        }
+    };
 
     this.stopGlowing = function(){
-        TweenMax.to(this.glowEffect, swapSpeed, {
+        TweenMax.to(this.glowEffect, advanceSpeed, {
             alpha: 0
         });
     };
@@ -134,7 +153,6 @@ function Cell(type, position){
 		
     //initialization
     this.sprite = cells.create(position.x,position.y, type);
-
     this.type = type;
     this.injectorHead = false;
     this.sprite.anchor.set (0.5,0.5);

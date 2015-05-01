@@ -32,7 +32,13 @@ function animationCombo (ray,back,text) {
     TweenMax.to (comboText, 0.5, {
         delay: 1,
         y: 800,
-        ease: Power3.easeIn
+        ease: Power3.easeIn,
+        onComplete: function () {
+            rayImage.destroy();
+            rayMask.destroy();
+            comboBack.destroy();
+            comboText.destroy();
+        }
     });
     TweenMax.to (comboBack.scale, 0.5, {
         delay: 1,
